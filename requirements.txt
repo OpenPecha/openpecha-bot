@@ -1,0 +1,1 @@
+flask-githubapp==0.2.0
