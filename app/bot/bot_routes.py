@@ -16,3 +16,6 @@ def cruel_closer():
     issue = github_app.installation_client.issue(owner, repo, num)
     issue.create_comment("Could not replicate.")
     issue.close()
+
+
+

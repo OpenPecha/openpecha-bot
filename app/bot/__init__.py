@@ -2,14 +2,24 @@ import os
 
 from flask import Flask
 from flask_githubapp import GitHubApp
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+from bot.config import Config
+
 
 app = Flask(__name__)
 
-# Github app cofigs
-app.config["GITHUBAPP_ID"] = int(os.environ["GITHUBAPP_ID"])
-app.config["GITHUBAPP_SECRET"] = os.environ["GITHUBAPP_SECRET"]
-with open(os.environ["GITHUBAPP_KEY_PATH"], "rb") as key_file:
-    app.config["GITHUBAPP_KEY"] = key_file.read()
+app.config.from_object(Config)
 
+# Database setup
+engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+db_session = scoped_session(
+    sessionmaker(autocommit=False, autoflush=False, bind=engine)
+)
+Base = declarative_base()
+Base.query = db_session.query_property()
+Base.metadata.create_all(bind=engine)
 
-from bot import routes
+from bot import bot_routes, maintainer_routes
