@@ -1,10 +1,17 @@
-from flask import Flask, request, g, session, redirect, url_for
-from flask import render_template_string, jsonify
+from flask import (
+    Flask,
+    g,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from flask_github import GitHub
 
 from bot import app, db_session
 from bot.models import User
-
 
 github = GitHub(app)
 
@@ -16,25 +23,15 @@ def before_request():
         g.user = User.query.get(session["user_id"])
 
 
-@app.after_request
-def after_request(response):
-    db_session.remove()
-    return response
+# @app.after_request
+# def after_request(response):
+#     db_session.remove()
+#     return response
 
 
 @app.route("/")
 def index():
-    if g.user:
-        t = (
-            'Hello! %s <a href="{{ url_for("user") }}">Get user</a> '
-            '<a href="{{ url_for("repo") }}">Get repo</a> '
-            '<a href="{{ url_for("logout") }}">Logout</a>'
-        )
-        t %= g.user.github_login
-    else:
-        t = 'Hello! <a href="{{ url_for("login") }}">Login</a>'
-
-    return render_template_string(t)
+    return render_template("login.html")
 
 
 @github.access_token_getter
@@ -47,7 +44,7 @@ def token_getter():
 @app.route("/github-callback")
 @github.authorized_handler
 def authorized(access_token):
-    next_url = request.args.get("next") or url_for("index")
+    next_url = request.args.get("next") or url_for("home")
     if access_token is None:
         return redirect(next_url)
 
@@ -73,7 +70,6 @@ def authorized(access_token):
 
 @app.route("/login")
 def login():
-    print(session)
     if session.get("user_id", None) is None:
         return github.authorize()
     else:
@@ -98,4 +94,4 @@ def repo():
 
 @app.route("/home")
 def home():
-    return render_template_string('Hello! <a href="{{ url_for("logout") }}">Logout</a>')
+    return render_template("home.html")
