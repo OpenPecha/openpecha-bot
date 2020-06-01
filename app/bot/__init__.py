@@ -20,6 +20,10 @@ db_session = scoped_session(
 )
 Base = declarative_base()
 Base.query = db_session.query_property()
-Base.metadata.create_all(bind=engine)
+
+
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
 
 from bot import bot_routes, maintainer_routes
