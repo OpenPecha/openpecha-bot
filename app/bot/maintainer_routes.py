@@ -23,10 +23,10 @@ def before_request():
         g.user = User.query.get(session["user_id"])
 
 
-# @app.after_request
-# def after_request(response):
-#     db_session.remove()
-#     return response
+@app.after_request
+def after_request(response):
+    db_session.remove()
+    return response
 
 
 @app.route("/")
@@ -51,19 +51,18 @@ def authorized(access_token):
     if access_token is None:
         return redirect(next_url)
 
-    user = User.query.filter_by(github_access_token=access_token).first()
-    if user is None:
-        user = User(access_token)
-        db_session.add(user)
-
-    user.github_access_token = access_token
-
-    # Not necessary to get these details here
-    # but it helps humans to identify users easily.
+    user = User(access_token)
     g.user = user
     github_user = github.get("/user")
-    user.github_id = github_user["id"]
-    user.github_login = github_user["login"]
+    github_user_id = github_user["id"]
+    user = User.query.filter_by(github_id=github_user_id).first()
+    if user is None:
+        db_session.add(user)
+        user.github_id = github_user_id
+        user.github_login = github_user["login"]
+
+    user.github_access_token = access_token
+    g.user = user
 
     db_session.commit()
 
