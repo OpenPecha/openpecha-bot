@@ -31,7 +31,10 @@ def before_request():
 
 @app.route("/")
 def index():
-    return render_template("login.html")
+    if session.get("user_id", None) is None:
+        return render_template("login.html")
+    else:
+        return render_template("home.html")
 
 
 @github.access_token_getter
@@ -70,10 +73,7 @@ def authorized(access_token):
 
 @app.route("/login")
 def login():
-    if session.get("user_id", None) is None:
-        return github.authorize()
-    else:
-        return "Already logged in"
+    return github.authorize()
 
 
 @app.route("/logout")
