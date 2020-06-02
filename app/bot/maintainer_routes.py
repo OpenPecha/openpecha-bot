@@ -11,6 +11,7 @@ from flask import (
 from flask_github import GitHub
 
 from bot import app, db_session
+from bot.forms import InvitationForm, PechaIdForm, PechaSecretKeyForm
 from bot.models import User
 
 github = GitHub(app)
@@ -94,3 +95,15 @@ def repo():
 @app.route("/home")
 def home():
     return render_template("home.html")
+
+
+@app.route("/add-contributor")
+def add_contributors():
+    form = PechaSecretKeyForm()
+    return render_template("secret_key_form.html", title="Pecha Secret Key", form=form)
+
+
+@app.route("/join")
+def join():
+    form = PechaIdForm()
+    return render_template("pecha_id_form.html", title="Join", form=form)

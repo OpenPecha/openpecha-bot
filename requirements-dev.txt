@@ -1,5 +1,1 @@
-flask-githubapp==0.2.0
-GitHub-Flask==3.2.0
-flask_sqlalchemy==2.4.3
-flask-wtf==0.41.3
 black
