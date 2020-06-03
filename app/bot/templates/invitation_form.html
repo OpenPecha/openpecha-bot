@@ -1,12 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="col-md-6 offset-md-3">
+    <h1> Add Contributors</h1>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Enter Pecha Id</legend>
+            <legend class="border-bottom mb-4">Enter Github linked email</legend>
             <div class="form-group">
-                {{ form.pecha_id(class="form-control form-control-lg") }}
+                {{ form.email(class="form-control form-control-lg") }}
             </div>
         </fieldset>
         <div class="from-group">

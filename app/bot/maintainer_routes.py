@@ -1,5 +1,6 @@
 from flask import (
     Flask,
+    flash,
     g,
     jsonify,
     redirect,
@@ -97,10 +98,24 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/add-contributor")
-def add_contributors():
+@app.route("/validate-secret", methods=["GET", "POST"])
+def validate_secret_key():
     form = PechaSecretKeyForm()
+    if form.is_validate_on_submit():
+        flash("Correct Secret key!", "success")
+        return redirect(url_for("add_contributors"))
     return render_template("secret_key_form.html", title="Pecha Secret Key", form=form)
+
+
+@app.route("/add-contributors", methods=["GET", "POST"])
+def add_contributors():
+    form = InvitationForm()
+    if form.is_validate_on_submit():
+        flash("Invitation is sent", "success")
+        return redirect(url_for("add_contributors"))
+    return render_template(
+        "invitation_form.html", title="Invite Collaborators", form=form
+    )
 
 
 @app.route("/join")
