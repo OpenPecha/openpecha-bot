@@ -13,7 +13,7 @@ from flask_github import GitHub
 
 from bot import app, db_session
 from bot.forms import InvitationForm, PechaIdForm, PechaSecretKeyForm
-from bot.models import User
+from bot.models import Pecha, User
 
 github = GitHub(app)
 
@@ -59,6 +59,7 @@ def authorized(access_token):
     github_user_id = github_user["id"]
     user = User.query.filter_by(github_id=github_user_id).first()
     if user is None:
+        user = User(access_token)
         db_session.add(user)
         user.github_id = github_user_id
         user.github_login = github_user["login"]
@@ -101,16 +102,19 @@ def home():
 @app.route("/validate-secret", methods=["GET", "POST"])
 def validate_secret_key():
     form = PechaSecretKeyForm()
-    if form.is_validate_on_submit():
-        flash("Correct Secret key!", "success")
-        return redirect(url_for("add_contributors"))
+    if form.validate_on_submit():
+        secret_key = form.secret_key.data
+        if len(secret_key) == 32:
+            flash("Correct Secret key!", "success")
+            return redirect(url_for("add_contributors"))
+        flash("Invalid Pecha Secret Key!", "danger")
     return render_template("secret_key_form.html", title="Pecha Secret Key", form=form)
 
 
 @app.route("/add-contributors", methods=["GET", "POST"])
 def add_contributors():
     form = InvitationForm()
-    if form.is_validate_on_submit():
+    if form.validate_on_submit():
         flash("Invitation is sent", "success")
         return redirect(url_for("add_contributors"))
     return render_template(
@@ -118,7 +122,29 @@ def add_contributors():
     )
 
 
-@app.route("/join")
+@app.route("/join", methods=["GET", "POST"])
 def join():
     form = PechaIdForm()
+    is_pecha_id_correct = False
+    if form.validate_on_submit():
+        pecha_id_or_num = form.pecha_id.data
+        if pecha_id_or_num.startswith("P"):
+            pecha_id = pecha_id_or_num
+            is_pecha_id_correct = True
+        elif pecha_id_or_num.isdigit():
+            pecha_id = f"P{int(pecha_id_or_num):06}"
+            is_pecha_id_correct = True
+        if is_pecha_id_correct:
+            pecha = Pecha.query.filter_by(id=pecha_id).first()
+            print(pecha)
+            if pecha:
+                flash("Check your email for the invitation!", "success")
+                return redirect(url_for("home"))
+        flash("Pecha Id is incorrect!", "danger")
     return render_template("pecha_id_form.html", title="Join", form=form)
+
+
+@app.route("/admin")
+def admin_dashboard():
+    pechas = Pecha.query.all()
+    print(pechas)

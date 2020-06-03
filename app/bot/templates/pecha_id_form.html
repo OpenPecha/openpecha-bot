@@ -1,17 +1,24 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="col-md-6 offset-md-3">
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Enter Pecha Id</legend>
-            <div class="form-group">
-                {{ form.pecha_id(class="form-control form-control-lg") }}
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Enter Pecha Id</legend>
+        <div class="form-group">
+            {% if form.pecha_id.errors %}
+            {{ form.pecha_id(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.pecha_id.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
             </div>
-        </fieldset>
-        <div class="from-group">
-            {{ form.submit(class="btn btn-outline-info" )}}
+            {% else %}
+            {{ form.pecha_id(class="form-control form-control-lg") }}
+            {% endif %}
         </div>
-    </form>
-</div>
+    </fieldset>
+    <div class="from-group">
+        {{ form.submit(class="btn btn-outline-info" )}}
+    </div>
+</form>
 {% endblock %}

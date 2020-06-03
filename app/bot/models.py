@@ -8,6 +8,7 @@ from bot import Base
 
 
 class RoleType(enum.Enum):
+    admin = "Admin"
     maintainer = "Maintainer"
     contributor = "Contributor"
     user = "User"
@@ -28,7 +29,7 @@ class Pecha(Base):
 class User(Base):
     __tablename__ = "users"
 
-    id_ = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     github_access_token = Column(String(255))
     github_id = Column(Integer)
     github_login = Column(String(255))

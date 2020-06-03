@@ -1,12 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, SubmitField
+from wtforms import IntegerField, PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length
 
 
 class PechaSecretKeyForm(FlaskForm):
-    secret_key = PasswordField(
-        "Pecha Secret Key", validators=[DataRequired(), Length(min=32, max=32)]
-    )
+    secret_key = PasswordField("Pecha Secret Key", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 
@@ -16,5 +14,7 @@ class InvitationForm(FlaskForm):
 
 
 class PechaIdForm(FlaskForm):
-    pecha_id = StringField("Pecha Id")
+    pecha_id = StringField(
+        "Pecha Id", validators=[DataRequired(), Length(min=1, max=7)]
+    )
     submit = SubmitField("Join")
