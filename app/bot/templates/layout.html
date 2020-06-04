@@ -16,53 +16,48 @@
 
 <body>
   <div class="container">
-    <ul class="nav nav-pills s nav-fill">
-      <li class="nav-item dropdown">
+    <ul class="nav nav-pills s nav-fill pt-2">
+      <li class="nav-item">
+        <a class="nav-link active" href="#">Editor</a>
+      </li>
+      <li class="nav-item dropdown ml-2">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
           aria-expanded="false">
           Register
         </a>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="{{ url_for('validate_secret_key') }}">As Owner</a>
-          <a class="dropdown-item" href="{{ url_for('join') }}">As Collaborator</a>
+          <a class="dropdown-item" href="{{ url_for('register_collaborator') }}">As Collaborator</a>
         </div>
       </li>
-      <li class="nav-item ml-5">
-        <a class="nav-link" href="#">
-          <button type="button" class="btn btn-sm btn-outline-primary">Update</button>
-        </a>
-      </li>
+
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
           aria-expanded="false">
           Choose Layers
         </a>
         <div class="dropdown-menu">
-          <form class="px-4 py-3">
-            <div class="form-group">
-              <div class="form-check form-group">
-                <input type="checkbox" class="form-check-input" id="dropdownCheck">
+          <form class="px-3 py-1">
+            <fieldset class="form-group">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input">
                 <label class="form-check-label" for="dropdownCheck">
-                  Table of Content
+                  TOC
                 </label>
               </div>
-            </div>
-            <div class="form-group">
-              <div class="form-check form-group">
-                <input type="checkbox" class="form-check-input" id="dropdownCheck">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input">
                 <label class="form-check-label" for="dropdownCheck">
                   Pagination
                 </label>
               </div>
-            </div>
-            <div class="form-group">
               <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="dropdownCheck">
+                <input type="checkbox" class="form-check-input">
                 <label class="form-check-label" for="dropdownCheck">
                   Correction
                 </label>
               </div>
-            </div>
+            </fieldset>
             <button type="submit" class="btn btn-sm btn-outline-primary btn-block">Apply</button>
           </form>
         </div>
@@ -78,6 +73,11 @@
           <a class="dropdown-item" href="# ">Markdown (.md)</a>
           <a class="dropdown-item" href="# ">Plain text (.txt)</a>
         </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <button type="button" class="btn btn-sm btn-outline-primary">Update</button>
+        </a>
       </li>
     </ul>
   </div>
