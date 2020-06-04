@@ -9,9 +9,8 @@ from bot import Base
 
 class RoleType(enum.Enum):
     admin = "Admin"
-    maintainer = "Maintainer"
+    owner = "Owner"
     contributor = "Contributor"
-    user = "User"
 
 
 class StatusType(enum.Enum):
