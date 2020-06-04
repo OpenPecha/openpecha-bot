@@ -105,8 +105,11 @@ def validate_secret_key():
     if form.validate_on_submit():
         secret_key = form.secret_key.data
         if len(secret_key) == 32:
-            flash("Correct Secret key!", "success")
-            return redirect(url_for("add_contributors"))
+            pecha = Pecha.query.filter_by(secret_key=secret_key).first()
+            print(pecha)
+            if pecha:
+                flash("Correct Secret key!", "success")
+                return redirect(url_for("add_contributors", pecha_id=pecha.id))
         flash("Invalid Pecha Secret Key!", "danger")
     return render_template("secret_key_form.html", title="Pecha Secret Key", form=form)
 
@@ -115,6 +118,8 @@ def validate_secret_key():
 def add_contributors():
     form = InvitationForm()
     if form.validate_on_submit():
+        email = form.email.data
+        send_invitation
         flash("Invitation is sent", "success")
         return redirect(url_for("add_contributors"))
     return render_template(
@@ -147,4 +152,4 @@ def join():
 @app.route("/admin")
 def admin_dashboard():
     pechas = Pecha.query.all()
-    print(pechas)
+    return render_template("admin_page.html", title="Admin Page", pechas=pechas)

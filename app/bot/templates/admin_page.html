@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<table class="table">
+    <thead class="thead-dark">
+        <th scope="col">Pecha Id</th>
+        <th scope="col">Secret Key</th>
+    </thead>
+    <tbody>
+        {% for pecha in pechas %}
+        <tr>
+            <th scopr="row">{{ pecha.id }}</th>
+            <td>{{ pecha.secret_key }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
