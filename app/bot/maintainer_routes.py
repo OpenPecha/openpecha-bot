@@ -11,9 +11,9 @@ from flask import (
 )
 from flask_github import GitHub
 
-from bot import app, db_session
-from bot.forms import InvitationForm, PechaIdForm, PechaSecretKeyForm
-from bot.models import Pecha, User
+from . import app, db_session
+from .forms import PechaSecretKeyForm
+from .models import Pecha, User
 
 github = GitHub(app)
 
@@ -29,15 +29,6 @@ def before_request():
 def after_request(response):
     db_session.remove()
     return response
-
-
-@app.route("/")
-def index():
-    pecha_id = request.args.get("pecha_id")
-    print(pecha_id)
-    return render_template("home.html")
-    # if session.get("user_id", None) is None:
-    #     return render_template("login.html")
 
 
 @github.access_token_getter
@@ -95,10 +86,11 @@ def repo():
     return jsonify(github.get("/repos/cenkalti/github-flask"))
 
 
-@app.route("/home")
-def home(pecha_id):
-    print(pecha_id)
-    return render_template("home.html")
+@app.route("/<pecha_id>/<branch>")
+def index(pecha_id, branch):
+    return render_template("main.html", pecha_id=pecha_id, branch=branch)
+    # if session.get("user_id", None) is None:
+    #     return render_template("login.html")
 
 
 @app.route("/validate-secret", methods=["GET", "POST"])
@@ -111,9 +103,15 @@ def validate_secret_key():
             print(pecha)
             if pecha:
                 flash("Correct Secret key!", "success")
-                return redirect(url_for("add_contributors", pecha_id=pecha.id))
+                return redirect(url_for("register_collaborator", pecha_id=pecha.id))
         flash("Invalid Pecha Secret Key!", "danger")
     return render_template("secret_key_form.html", title="Pecha Secret Key", form=form)
+
+
+@app.route("/register-collaborator/<pecha_id>")
+def register_collaborator(pecha_id):
+    print(pecha_id)
+    return pecha_id
 
 
 @app.route("/admin")

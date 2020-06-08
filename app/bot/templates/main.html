@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<iframe src="https://prose.io/#OpenPecha/P000780/edit/publication/v001.txt" width="100%" height="600"></iframe>
+<iframe id="iframe" src="https://prose.io/#OpenPecha/{{ pecha_id }}/tree/{{ branch }}" width="100%"></iframe>
 Hello! %s <a href="{{ url_for("user") }}">Get user</a>
 <a href="{{ url_for("repo") }}">Get repo</a>
 {% endblock %}
