@@ -31,9 +31,9 @@ class User(Base):
     github_access_token = Column(String(255))
     github_id = Column(Integer)
     github_login = Column(String(255))
-    pecha_id = Column(ForeignKey("pecha.id"))
+    pecha_id = Column(String(7))
     role = Column(Enum(RoleType))
-    status = Column(Enum(StatusType))
+    status = Column(Enum(StatusType), default=StatusType.pending)
 
     def __init__(self, github_access_token):
         self.github_access_token = github_access_token

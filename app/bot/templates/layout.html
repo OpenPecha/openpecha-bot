@@ -26,8 +26,9 @@
                     Register
                 </a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ url_for('validate_secret_key') }}">As Owner</a>
-                    <a class="dropdown-item" href="{{ url_for('register_collaborator', pecha_id=pecha_id) }}">As
+                    <a class="dropdown-item"
+                        href="{{ url_for('validate_secret_key', pecha_id=pecha_id, branch=branch) }}">As Owner</a>
+                    <a class="dropdown-item" href="{{ url_for('register_user', pecha_id=pecha_id, branch=branch) }}">As
                         Collaborator</a>
                 </div>
             </li>

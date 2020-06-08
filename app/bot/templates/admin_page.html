@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
+<h1>{{ title }}</h1>
+<h3> Pechas </h3>
 <table class="table">
     <thead class="thead-dark">
         <th scope="col">Pecha Id</th>
@@ -10,6 +12,26 @@
         <tr>
             <th scopr="row">{{ pecha.id }}</th>
             <td>{{ pecha.secret_key }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3> Users </h3>
+<table class="table">
+    <thead class="thead-dark">
+        <th scope="col">Username</th>
+        <th scope="col">Pecha ID</th>
+        <th scope="col">Role</th>
+        <th scope="col">Status</th>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <th scopr="row">{{ user.github_login }}</th>
+            <td>{{ user.pecha_id }}</td>
+            <td>{{ user.role.value }}</td>
+            <td>{{ user.status.value }}</td>
         </tr>
         {% endfor %}
     </tbody>
