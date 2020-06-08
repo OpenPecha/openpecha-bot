@@ -1,5 +1,4 @@
 import enum
-from uuid import uuid4
 
 from sqlalchemy import Column, Enum, Integer, String
 from sqlalchemy.schema import ForeignKey
@@ -22,7 +21,7 @@ class Pecha(Base):
     __tablename__ = "pecha"
 
     id = Column(String(7), primary_key=True)
-    secret_key = Column(String(32), default=uuid4().hex)
+    secret_key = Column(String(32))
 
 
 class User(Base):
