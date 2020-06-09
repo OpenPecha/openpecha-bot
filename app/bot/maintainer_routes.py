@@ -1,6 +1,7 @@
 from flask import (
     Flask,
     flash,
+    g,
     jsonify,
     redirect,
     render_template,
@@ -18,6 +19,9 @@ from .models import Pecha, RoleType, User
 github = GitHub(app)
 
 
+NEXT_URL = None
+
+
 @github.access_token_getter
 def token_getter():
     return session.get("user_access_token", None)
@@ -26,8 +30,9 @@ def token_getter():
 @app.route("/github-callback")
 @github.authorized_handler
 def authorized(access_token):
-    next_url = session.get("next")
+    next_url = NEXT_URL
     if access_token is None:
+        flash("Authorization failed.", category="error")
         return redirect(next_url)
     session["user_access_token"] = access_token
     github_user = github.get("/user")
@@ -43,15 +48,8 @@ def authorized(access_token):
     return redirect(next_url)
 
 
-@app.route("/login")
-def login():
-    return github.authorize()
-
-
-@app.route("/logout")
 def logout():
     session.pop("user_id", None)
-    return redirect(url_for("index"))
 
 
 @app.route("/user")
@@ -79,7 +77,6 @@ def validate_secret_key():
         if len(secret_key) == 32:
             pecha = Pecha.query.filter_by(secret_key=secret_key).first()
             if pecha:
-                flash("Correct Secret key!", "success")
                 return redirect(
                     url_for(
                         "register_user",
@@ -101,16 +98,19 @@ def validate_secret_key():
 
 @app.route("/register-user")
 def register_user():
+    global NEXT_URL
     pecha_id = request.args.get("pecha_id")
     branch = request.args.get("branch")
     is_owner = request.args.get("is_owner")
 
+    # Login with Github
     if session.get("user_id", None) is None:
-        session["next"] = url_for(
+        NEXT_URL = url_for(
             "register_user", pecha_id=pecha_id, branch=branch, is_owner=is_owner
         )
         return github.authorize()
 
+    # Update pecha-id and role of the user
     user = User.query.get(session["user_id"])
     if is_owner:
         user.role = RoleType.owner
@@ -120,21 +120,35 @@ def register_user():
     db_session.commit()
     send_invitation(user, pecha_id)
 
+    # Logout after registration
+    logout()
+
     return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
 
 
 def send_invitation(user, pecha_id):
-    add_collaborator_url = f"https://api.github.com/repos/OpenPecha/{pecha_id}/collaborators/{user.github_login}"
+    add_collaborator_url = f"https://api.github.com/repos/OpenPecha/{pecha_id}/collaborators/{user.username}"
     headers = {"Authorization": f"token {app.config['GITHUB_TOKEN']}"}
     res = github.session.request("PUT", add_collaborator_url, headers=headers)
     if res.status_code == 201:
-        flash("Registration successful", "success")
+        flash(f"Registration successful to {pecha_id}", "success")
+    elif res.status_code == 204:
+        flash(f"User already registered to {pecha_id}", "info")
     else:
-        flash("Registration unsuccessful", "danger")
+        flash("Registration failed. Please try again later", "danger")
 
 
 @app.route("/admin")
 def admin_dashboard():
+    # global NEXT_URL
+    # if session.get("user_id", None) is None:
+    #     NEXT_URL = url_for("admin_dashboard")
+    #     return github.authorize()
+
+    # user = User.query.get(session["user_id"])
+    # if user.role != RoleType.admin:
+    #     return "You don't have access to this page"
+
     pechas = Pecha.query.all()
     users = User.query.all()
     return render_template(
