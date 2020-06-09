@@ -1,7 +1,6 @@
 from flask import (
     Flask,
     flash,
-    g,
     jsonify,
     redirect,
     render_template,
@@ -19,24 +18,9 @@ from .models import Pecha, RoleType, User
 github = GitHub(app)
 
 
-@app.before_request
-def before_request():
-    g.user = None
-    if "user_id" in session:
-        g.user = User.query.get(session["user_id"])
-
-
-@app.after_request
-def after_request(response):
-    db_session.remove()
-    return response
-
-
 @github.access_token_getter
 def token_getter():
-    user = g.user
-    if user is not None:
-        return user.github_access_token
+    return session.get("user_access_token", None)
 
 
 @app.route("/github-callback")
@@ -45,22 +29,15 @@ def authorized(access_token):
     next_url = session.get("next")
     if access_token is None:
         return redirect(next_url)
-
-    user = User(access_token)
-    g.user = user
+    session["user_access_token"] = access_token
     github_user = github.get("/user")
-    github_user_id = github_user["id"]
-    user = User.query.filter_by(github_id=github_user_id).first()
+    user = User.query.filter_by(username=github_user["login"]).first()
+
+    # add user to database
     if user is None:
-        user = User(access_token)
+        user = User(username=github_user["login"])
         db_session.add(user)
-        user.github_id = github_user_id
-        user.github_login = github_user["login"]
-
-    user.github_access_token = access_token
-    g.user = user
-
-    db_session.commit()
+        db_session.commit()
 
     session["user_id"] = user.id
     return redirect(next_url)
@@ -90,8 +67,6 @@ def repo():
 @app.route("/<pecha_id>/<branch>")
 def index(pecha_id, branch):
     return render_template("main.html", pecha_id=pecha_id, branch=branch)
-    # if session.get("user_id", None) is None:
-    #     return render_template("login.html")
 
 
 @app.route("/validate-secret", methods=["GET", "POST"])
