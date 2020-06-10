@@ -19,9 +19,6 @@ from .models import Pecha, RoleType, User
 github = GitHub(app)
 
 
-NEXT_URL = None
-
-
 @github.access_token_getter
 def token_getter():
     return session.get("user_access_token", None)
@@ -30,7 +27,7 @@ def token_getter():
 @app.route("/github-callback")
 @github.authorized_handler
 def authorized(access_token):
-    next_url = NEXT_URL
+    next_url = session.get("next_url")
     if access_token is None:
         flash("Authorization failed.", category="error")
         return redirect(next_url)
@@ -98,14 +95,13 @@ def validate_secret_key():
 
 @app.route("/register-user")
 def register_user():
-    global NEXT_URL
     pecha_id = request.args.get("pecha_id")
     branch = request.args.get("branch")
     is_owner = request.args.get("is_owner")
 
     # Login with Github
     if session.get("user_id", None) is None:
-        NEXT_URL = url_for(
+        session["next_url"] = url_for(
             "register_user", pecha_id=pecha_id, branch=branch, is_owner=is_owner
         )
         return github.authorize()
@@ -131,7 +127,10 @@ def send_invitation(user, pecha_id):
     headers = {"Authorization": f"token {app.config['GITHUB_TOKEN']}"}
     res = github.session.request("PUT", add_collaborator_url, headers=headers)
     if res.status_code == 201:
-        flash(f"Registration successful to {pecha_id}", "success")
+        flash(
+            f"Please check your Github linked Email to complete the Registration to {pecha_id}",
+            "info",
+        )
     elif res.status_code == 204:
         flash(f"User already registered to {pecha_id}", "info")
     else:
