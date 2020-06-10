@@ -38,16 +38,26 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                     aria-expanded="false">
-                    Choose Layers
+                    Export
                 </a>
                 <div class="dropdown-menu">
                     <form class="px-3 py-1" action="{{ url_for('apply_layers') }}" method="post">
                         <fieldset class="form-group">
+                            <b>Choose layers:</b>
                             {% for layer in layers %}
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" name="layers" value="{{ layer }}">
-                                <label class="form-check-label" for="dropdownCheck">
-                                    {{ layer }}
+                                <label class="form-check-label">
+                                    <i>{{ layer }}</i>
+                                </label>
+                            </div>
+                            {% endfor %}
+                            <b>Choose Format:</b>
+                            {% for format in formats %}
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="format" value="{{ format }}">
+                                <label class="form-check-label">
+                                    <i>{{ format }}</i>
                                 </label>
                             </div>
                             {% endfor %}
