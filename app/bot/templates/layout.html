@@ -41,26 +41,16 @@
                     Choose Layers
                 </a>
                 <div class="dropdown-menu">
-                    <form class="px-3 py-1">
+                    <form class="px-3 py-1" action="{{ url_for('apply_layers') }}" method="post">
                         <fieldset class="form-group">
+                            {% for layer in layers %}
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input">
+                                <input type="checkbox" class="form-check-input" name="layers" value="{{ layer }}">
                                 <label class="form-check-label" for="dropdownCheck">
-                                    TOC
+                                    {{ layer }}
                                 </label>
                             </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input">
-                                <label class="form-check-label" for="dropdownCheck">
-                                    Pagination
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input">
-                                <label class="form-check-label" for="dropdownCheck">
-                                    Correction
-                                </label>
-                            </div>
+                            {% endfor %}
                         </fieldset>
                         <button type="submit" class="btn btn-sm btn-outline-primary btn-block">Apply</button>
                     </form>

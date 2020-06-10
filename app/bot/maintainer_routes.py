@@ -15,6 +15,7 @@ from github3.apps import create_jwt_headers
 from . import app, db_session
 from .forms import PechaSecretKeyForm
 from .models import Pecha, RoleType, User
+from .utils import get_opf_layers
 
 github = GitHub(app)
 
@@ -49,19 +50,10 @@ def logout():
     session.pop("user_id", None)
 
 
-@app.route("/user")
-def user():
-    return jsonify(github.get("/user"))
-
-
-@app.route("/repo")
-def repo():
-    return jsonify(github.get("/repos/cenkalti/github-flask"))
-
-
 @app.route("/<pecha_id>/<branch>")
 def index(pecha_id, branch):
-    return render_template("main.html", pecha_id=pecha_id, branch=branch)
+    layers = get_opf_layers(pecha_id)
+    return render_template("main.html", pecha_id=pecha_id, branch=branch, layers=layers)
 
 
 @app.route("/validate-secret", methods=["GET", "POST"])
@@ -135,6 +127,12 @@ def send_invitation(user, pecha_id):
         flash(f"User already registered to {pecha_id}", "info")
     else:
         flash("Registration failed. Please try again later", "danger")
+
+
+@app.route("/apply-layers", methods=["POST"])
+def apply_layers():
+    layers = request.form.getlist("layers")
+    return ", ".join(layers)
 
 
 @app.route("/admin")
