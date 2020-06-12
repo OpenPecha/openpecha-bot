@@ -158,7 +158,13 @@ def apply_layers():
         labels=["export"],
     )
 
-    flash(f"{pecha_id} is being exported. This may take a few seconds", "info")
+    if issue:
+        flash(
+            f"{pecha_id} is being exported. Please go to Download section to download the file",
+            "info",
+        )
+    else:
+        flash(f"{pecha_id} cloud not be exported. Please try again later", "danger")
 
     return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
 
