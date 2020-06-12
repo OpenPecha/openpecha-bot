@@ -10,12 +10,12 @@ from flask import (
     url_for,
 )
 from flask_github import GitHub
-from github3.apps import create_jwt_headers
+from github3 import GitHub as GitHub3
 
-from . import app, db_session
+from . import app, db_session, utils
+from .bot_routes import github_app
 from .forms import PechaSecretKeyForm
 from .models import Pecha, RoleType, User
-from .utils import get_opf_layers_and_formats
 
 github = GitHub(app)
 
@@ -52,7 +52,7 @@ def logout():
 
 @app.route("/<pecha_id>/<branch>")
 def index(pecha_id, branch):
-    layers, formats = get_opf_layers_and_formats(pecha_id)
+    layers, formats = utils.get_opf_layers_and_formats(pecha_id)
     return render_template(
         "main.html", pecha_id=pecha_id, branch=branch, layers=layers, formats=formats
     )
@@ -133,9 +133,34 @@ def send_invitation(user, pecha_id):
 
 @app.route("/apply-layers", methods=["POST"])
 def apply_layers():
+    global app
+    # Get layers and format
+    pecha_id = request.args.get("pecha_id")
+    branch = request.args.get("branch")
     layers = request.form.getlist("layers")
-    formats = request.form.getlist("format")
-    return ", ".join(layers + formats)
+    format_ = request.form.getlist("format")
+
+    # Authenticating bot as an installation
+    installation_id = utils.get_installation_id(
+        owner=app.config["GITHUBREPO_OWNER"], repo=pecha_id
+    )
+    installation_access_token = utils.get_installation_access_token(installation_id)
+    client = GitHub3(token=installation_access_token)
+
+    # Create github issue
+    issue_title = "Export"
+    issue_body = f"{','.join(layers)}\n{format_[0]}"
+    issue = client.create_issue(
+        app.config["GITHUBREPO_OWNER"],
+        pecha_id,
+        issue_title,
+        body=issue_body,
+        labels=["export"],
+    )
+
+    flash(f"{pecha_id} is being exported. This may take a few seconds", "info")
+
+    return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
 
 
 @app.route("/admin")

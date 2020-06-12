@@ -41,7 +41,8 @@
                     Export
                 </a>
                 <div class="dropdown-menu">
-                    <form class="px-3 py-1" action="{{ url_for('apply_layers') }}" method="post">
+                    <form class="px-3 py-1" action="{{ url_for('apply_layers', pecha_id=pecha_id, branch=branch) }}"
+                        method="post">
                         <fieldset class="form-group">
                             <b>Choose layers:</b>
                             {% for layer in layers %}

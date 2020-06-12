@@ -20,3 +20,5 @@ class Config:
 
     # Github Auth Token
     GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+
+    GITHUBREPO_OWNER = "OpenPecha"
