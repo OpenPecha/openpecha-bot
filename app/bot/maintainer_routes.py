@@ -140,22 +140,11 @@ def apply_layers():
     layers = request.form.getlist("layers")
     format_ = request.form.getlist("format")
 
-    # Authenticating bot as an installation
-    installation_id = utils.get_installation_id(
-        owner=app.config["GITHUBREPO_OWNER"], repo=pecha_id
-    )
-    installation_access_token = utils.get_installation_access_token(installation_id)
-    client = GitHub3(token=installation_access_token)
-
     # Create github issue
     issue_title = "Export"
     issue_body = f"{','.join(layers)}\n{format_[0]}"
-    issue = client.create_issue(
-        app.config["GITHUBREPO_OWNER"],
-        pecha_id,
-        issue_title,
-        body=issue_body,
-        labels=["export"],
+    issue = utils.create_issue(
+        pecha_id, issue_title, body=issue_body, labels=["export"]
     )
 
     if issue:
@@ -165,6 +154,39 @@ def apply_layers():
         )
     else:
         flash(f"{pecha_id} cloud not be exported. Please try again later", "danger")
+
+    return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
+
+
+@app.route("/update")
+def update():
+    pecha_id = request.args.get("pecha_id")
+    branch = request.args.get("branch")
+
+    # Login with Github
+    if session.get("user_id", None) is None:
+        session["next_url"] = url_for("update", pecha_id=pecha_id, branch=branch)
+        return github.authorize()
+
+    user = User.query.get(session["user_id"])
+    if user.role == RoleType.owner:
+        issue_title = "Update OPF"
+        issue_body = branch
+        issue = utils.create_issue(
+            pecha_id, issue_title, body=issue_body, labels=["update"]
+        )
+
+        if issue:
+            flash(
+                f"{pecha_id} is being updated. This may take a few minutes", "success",
+            )
+        else:
+            flash(
+                f"{pecha_id} cloud not be updated at the moment. Please try again later",
+                "danger",
+            )
+    else:
+        flash("Only owner can update the pecha", "danger")
 
     return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
 
