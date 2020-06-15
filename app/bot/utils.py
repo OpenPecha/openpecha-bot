@@ -1,4 +1,5 @@
 import requests
+from github3 import GitHub
 from github3.apps import create_jwt_headers
 
 from . import app
@@ -40,6 +41,21 @@ def get_installation_access_token(installation_id):
     if response.status_code != 201:
         raise Exception(f"Status code : {response.status_code}, {response.json()}")
     return response.json()["token"]
+
+
+def create_issue(pecha_id, title, body=None, labels=[]):
+    # Authenticating bot as an installation
+    installation_id = get_installation_id(
+        owner=app.config["GITHUBREPO_OWNER"], repo=pecha_id
+    )
+    installation_access_token = get_installation_access_token(installation_id)
+    client = GitHub(token=installation_access_token)
+
+    issue = client.create_issue(
+        app.config["GITHUBREPO_OWNER"], pecha_id, title, body=body, labels=labels
+    )
+
+    return issue
 
 
 if __name__ == "__main__":
