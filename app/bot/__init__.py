@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from bot.config import Config
+from .config import Config
 
 app = Flask(__name__)
 
@@ -29,4 +29,4 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
 
-from bot import bot_routes, maintainer_routes
+from . import bot_routes, maintainer_routes  # isort:skip

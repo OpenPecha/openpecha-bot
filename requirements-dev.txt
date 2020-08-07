@@ -1,1 +1,4 @@
-black
+pytest
+coverage
+pre-commit
+covdefaults

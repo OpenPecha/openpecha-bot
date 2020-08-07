@@ -70,10 +70,7 @@ def validate_secret_key():
             if pecha:
                 return redirect(
                     url_for(
-                        "register_user",
-                        pecha_id=pecha.id,
-                        branch=branch,
-                        is_owner=True,
+                        "register_user", pecha_id=pecha.id, branch=branch, is_owner=True
                     )
                 )
         flash("Invalid Pecha Secret Key!", "danger")
@@ -178,7 +175,7 @@ def update():
 
         if issue:
             flash(
-                f"{pecha_id} is being updated. This may take a few minutes", "success",
+                f"{pecha_id} is being updated. This may take a few minutes", "success"
             )
         else:
             flash(

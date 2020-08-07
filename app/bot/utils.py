@@ -56,8 +56,3 @@ def create_issue(pecha_id, title, body=None, labels=[]):
     )
 
     return issue
-
-
-if __name__ == "__main__":
-    layers = get_opf_layers("P000780")
-    print(layers)

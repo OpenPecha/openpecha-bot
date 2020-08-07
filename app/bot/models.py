@@ -1,9 +1,8 @@
 import enum
 
+from bot import Base
 from sqlalchemy import Column, Enum, Integer, String
 from sqlalchemy.schema import ForeignKey
-
-from bot import Base
 
 
 class RoleType(enum.Enum):
