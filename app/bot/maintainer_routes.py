@@ -1,3 +1,6 @@
+import time
+
+import requests
 from flask import (
     Flask,
     flash,
@@ -128,6 +131,15 @@ def send_invitation(user, pecha_id):
         flash("Registration failed. Please try again later", "danger")
 
 
+def create_export_issue(pecha_id, layers="", format_=".epub"):
+    issue_title = "Export"
+    issue_body = f"{','.join(layers)}\n{format_}"
+    issue = utils.create_issue(
+        pecha_id, issue_title, body=issue_body, labels=["export"]
+    )
+    return issue
+
+
 @app.route("/apply-layers", methods=["POST"])
 def apply_layers():
     global app
@@ -138,13 +150,9 @@ def apply_layers():
     format_ = request.form.getlist("format")
 
     # Create github issue
-    issue_title = "Export"
-    issue_body = f"{','.join(layers)}\n{format_[0]}"
-    issue = utils.create_issue(
-        pecha_id, issue_title, body=issue_body, labels=["export"]
-    )
+    export_issue = create_export_issue(pecha_id, layers, format_[0])
 
-    if issue:
+    if export_issue:
         flash(
             f"{pecha_id} is being exported. Please go to Download section to download the file",
             "info",
@@ -204,3 +212,25 @@ def admin_dashboard():
     return render_template(
         "admin_page.html", title="Admin Page", pechas=pechas, users=users
     )
+
+
+# ~~~~~~ API ~~~~~~~
+
+
+@app.route("api/download/<org>/<pecha_export_fn>")
+def download_api(org, pecha_export_fn):
+    pecha_id, format_ = pecha_export_fn.split(".")
+    json_response = {
+        "pecha_id": pecha_id,
+        "export_format": format_,
+        "download_url": f"https://github.com/{org}/{pecha_id}/releases/latest/download/{pecha_export_fn}",
+    }
+    is_export_issue_created = False
+    while True:
+        r = requests.get(json_response["download_url"])
+        if r.status_code == 200:
+            return jsonify(json_response)
+        else:
+            if not is_export_issue_created:
+                create_export_issue(pecha_id, format_=f".{format_}")
+            time.sleep(5)
