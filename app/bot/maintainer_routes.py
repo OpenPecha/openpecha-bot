@@ -1,4 +1,6 @@
+import re
 import time
+from functools import reduce
 
 import requests
 from flask import (
@@ -194,6 +196,16 @@ def update():
         flash("Only owner can update the pecha", "danger")
 
     return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
+
+
+@app.route("/download/<org>/<pecha_export_fn>")
+def download(org, pecha_export_fn):
+    download_api_url = url_for(
+        "download_api", org=org, pecha_export_fn=pecha_export_fn, _external=True
+    )
+    print(download_api_url)
+    r = requests.get(download_api_url)
+    return redirect(r.json()["download_url"])
 
 
 @app.route("/admin")
