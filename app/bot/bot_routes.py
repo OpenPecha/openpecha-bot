@@ -1,8 +1,9 @@
 import os
 
-from bot import app
 from flask import Flask
 from flask_githubapp import GitHubApp
+
+from . import app
 
 github_app = GitHubApp(app)
 
