@@ -217,7 +217,7 @@ def admin_dashboard():
 # ~~~~~~ API ~~~~~~~
 
 
-@app.route("api/download/<org>/<pecha_export_fn>")
+@app.route("/api/download/<org>/<pecha_export_fn>")
 def download_api(org, pecha_export_fn):
     pecha_id, format_ = pecha_export_fn.split(".")
     json_response = {
