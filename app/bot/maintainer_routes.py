@@ -245,4 +245,5 @@ def download_api(org, pecha_export_fn):
         else:
             if not is_export_issue_created:
                 create_export_issue(pecha_id, format_=f".{format_}")
+                is_export_issue_created = True
             time.sleep(5)
