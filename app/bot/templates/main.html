@@ -1,4 +1,29 @@
 {% extends "layout.html" %}
 {% block content %}
-<iframe id="iframe" src="https://prose.io/#OpenPecha/{{ pecha_id }}/tree/{{ branch }}" width="100%"></iframe>
+
+
+<div class="container repo-content"></div>
+
+<form id="editor-form">
+    <textarea class="editor-textarea" </textarea> This is text</textarea>
+    <br>
+    <button class="btn btn-primary">Save</button>
+</form>
+<script>
+    fetch(
+        'https://api.github.com/repos/OpenPecha/{{ pecha_id }}/contents?ref={{ branch }}'
+    ).then(function (data) {
+        return data.json()
+    }).then(function (data) {
+        var files = '<ul class="list-group">';
+        var file_icon = '<span class="oi oi-file"></span>';
+        for (f of data) {
+            fn = '  <span>' + f['name'] + '</span>';
+            files += '<li class="list-group-item">' + file_icon + fn + '</li>';
+        };
+        files += '</ul>';
+        $('.repo-content').html(files);
+    })
+</script>
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
 {% endblock %}
