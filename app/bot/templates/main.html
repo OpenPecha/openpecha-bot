@@ -1,29 +1,42 @@
 {% extends "layout.html" %}
 {% block content %}
 
-
-<div class="container repo-content"></div>
+<div class="container repo-files"></div>
 
 <form id="editor-form">
-    <textarea class="editor-textarea" </textarea> This is text</textarea>
+    <textarea class="editor-textarea"></textarea>
     <br>
     <button class="btn btn-primary">Save</button>
 </form>
+
 <script>
-    fetch(
-        'https://api.github.com/repos/OpenPecha/{{ pecha_id }}/contents?ref={{ branch }}'
-    ).then(function (data) {
-        return data.json()
-    }).then(function (data) {
+    function getFileDOM(file) {
+        return '<a href="#" id="volume-file"> \
+                <span>' + file['name'] + '</span> \
+                <input type="hidden" id="file-download-url" name="download-url" value=' + file['download_url'] + '> \
+                </a>'
+    };
+
+    function getFiles(content) {
         var files = '<ul class="list-group">';
         var file_icon = '<span class="oi oi-file"></span>';
-        for (f of data) {
-            fn = '  <span>' + f['name'] + '</span>';
-            files += '<li class="list-group-item">' + file_icon + fn + '</li>';
+        for (file of content) {
+            files += '<li class="list-group-item">' + file_icon + getFileDOM(file) + '</li>';
         };
         files += '</ul>';
-        $('.repo-content').html(files);
-    })
+        return files
+    };
+
+    function listFiles() {
+        return fetch('https://api.github.com/repos/OpenPecha/{{ pecha_id }}/contents?ref={{ branch }}')
+            .then(response => response.json())
+            .then(content => {
+                $('.repo-files').html(getFiles(content));
+            })
+    };
+
+    listFiles();
+
 </script>
 <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
 {% endblock %}
