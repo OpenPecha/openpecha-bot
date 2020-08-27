@@ -1,13 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="container repo-files"></div>
-
-<form id="editor-form">
-    <textarea class="editor-textarea"></textarea>
-    <br>
-    <button class="btn btn-primary">Save</button>
-</form>
+<div class="row">
+    <div class="col-3">
+        <div class="repo-files"></div>
+    </div>
+    <div class="col">
+        <div class="editor"></div>
+    </div>
+</div>
 
 <script>
     function getFileDOM(file) {
