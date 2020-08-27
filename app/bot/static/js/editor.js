@@ -1,4 +1,37 @@
-function lanuchEditor(text) {
+function getFileDOM(file) {
+    return '<a href="#" id="volume-file"> \
+                <span id="volume-filename">' + file['name'] + '</span> \
+                <input type="hidden" id="file-download-url" name="download-url" value=' + file['download_url'] + '> \
+                </a>'
+};
+
+function getFiles(content) {
+    var files = '<ul class="list-group overrides">';
+    var file_icon = '<span class="oi oi-file"></span>';
+    for (file of content) {
+        files += '<li class="list-group-item">' + file_icon + getFileDOM(file) + '</li>';
+    };
+    files += '</ul>';
+    return files
+};
+
+function listFiles(repo_content_api_url) {
+    return fetch(repo_content_api_url)
+        .then(response => response.json())
+        .then(content => {
+            $('.repo-files').html(getFiles(content));
+        })
+};
+
+function getAuthToken() {
+    return fetch("/api/auth")
+}
+
+function pushChanges(text) {
+
+};
+
+function viewFile(text) {
     const editor_html = '\
         <form id="editor-form"> \
             <textarea class="editor-textarea">' + text + '</textarea> \
@@ -14,23 +47,30 @@ function lanuchEditor(text) {
             singleLineStringErrors: false
         },
         lineNumbers: true,
-        theme: "dracula"
+        // theme: "dracula"
     });
-
-    var text = editor.getValue();
+    editor.setSize(null, 800);
 };
 
-function fetchFileContent(download_url) {
+function fetchFileContent(volumeFileDom) {
+    const download_url = $(volumeFileDom).children("#file-download-url").val();
     return fetch(download_url)
         .then(response => response.text())
-        .then(lanuchEditor)
+        .then(viewFile)
 };
 
+function addEditorTitle(volumeFileDom) {
+    const volumeFilename = $(volumeFileDom).children("#volume-filename").text();
+    $("p.editor-title").text(volumeFilename);
+};
+
+function launchEditor(volumeFileDom) {
+    addEditorTitle(volumeFileDom);
+    fetchFileContent(volumeFileDom);
+};
 
 $(document).ready(function () {
     $("body").delegate("#volume-file", "click", function () {
-        const download_url = $(this).children("#file-download-url").val();
-        console.log(download_url);
-        fetchFileContent(download_url);
+        launchEditor(this);
     });
 });

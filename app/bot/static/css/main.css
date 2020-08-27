@@ -1,5 +1,6 @@
-#iframe {
-    position: absolute;
-    height: 100%;
-    border: none;
+.overrides .list-group {
+    max-height: 300px;
+    margin-bottom: 10px;
+    overflow:scroll;
+    -webkit-overflow-scrolling: touch;
 }

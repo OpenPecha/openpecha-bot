@@ -3,41 +3,17 @@
 
 <div class="row">
     <div class="col-3">
+        <p> Files </p>
         <div class="repo-files"></div>
     </div>
     <div class="col">
+        <p class="editor-title"></p>
         <div class="editor"></div>
     </div>
 </div>
 
-<script>
-    function getFileDOM(file) {
-        return '<a href="#" id="volume-file"> \
-                <span>' + file['name'] + '</span> \
-                <input type="hidden" id="file-download-url" name="download-url" value=' + file['download_url'] + '> \
-                </a>'
-    };
-
-    function getFiles(content) {
-        var files = '<ul class="list-group">';
-        var file_icon = '<span class="oi oi-file"></span>';
-        for (file of content) {
-            files += '<li class="list-group-item">' + file_icon + getFileDOM(file) + '</li>';
-        };
-        files += '</ul>';
-        return files
-    };
-
-    function listFiles() {
-        return fetch('https://api.github.com/repos/OpenPecha/{{ pecha_id }}/contents?ref={{ branch }}')
-            .then(response => response.json())
-            .then(content => {
-                $('.repo-files').html(getFiles(content));
-            })
-    };
-
-    listFiles();
-
-</script>
 <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+<script>
+    listFiles('https://api.github.com/repos/OpenPecha/{{ pecha_id }}/contents?ref={{ branch }}');
+</script>
 {% endblock %}
