@@ -1,19 +1,7 @@
-import re
 import time
-from functools import reduce
 
 import requests
-from flask import (
-    Flask,
-    flash,
-    g,
-    jsonify,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
-)
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
 from flask_github import GitHub
 from github3 import GitHub as GitHub3
 
@@ -51,12 +39,27 @@ def authorized(access_token):
     return redirect(next_url)
 
 
+@app.route("/login")
+def login():
+    session["next_url"] = url_for(
+        "editor", pecha_id=session["pecha_id"], branch=session["branch"]
+    )
+    return github.authorize()
+
+
 def logout():
     session.pop("user_id", None)
 
 
 @app.route("/<pecha_id>/<branch>")
 def index(pecha_id, branch):
+    session["pecha_id"] = pecha_id
+    session["branch"] = branch
+    return render_template("login.html")
+
+
+@app.route("/editor/<pecha_id>/<branch>")
+def editor(pecha_id, branch):
     layers, formats = utils.get_opf_layers_and_formats(pecha_id)
     return render_template(
         "main.html", pecha_id=pecha_id, branch=branch, layers=layers, formats=formats
@@ -247,3 +250,9 @@ def download_api(org, pecha_export_fn):
                 create_export_issue(pecha_id, format_=f".{format_}")
                 is_export_issue_created = True
             time.sleep(5)
+
+
+@app.route("/api/auth")
+def auth():
+    result = {"token": session["user_access_token"]}
+    return jsonify(result)
