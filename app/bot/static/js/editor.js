@@ -24,11 +24,16 @@ function listFiles(repo_content_api_url) {
 };
 
 function getAuthToken() {
-    return fetch("/api/auth")
+    return fetch('/api/auth')
+        .then(response => response.json())
+        .then(data => { return data['token'] });
 }
 
 function pushChanges(text) {
-
+    const token_string = getAuthToken();
+    var oauthAuth = new GitHub({
+        token: token_string
+    });
 };
 
 function viewFile(text) {
