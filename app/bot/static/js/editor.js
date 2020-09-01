@@ -1,39 +1,23 @@
-function getFileDOM(file) {
-    return '<a href="#" id="volume-file"> \
-                <span id="volume-filename">' + file['name'] + '</span> \
-                <input type="hidden" id="file-download-url" name="download-url" value=' + file['download_url'] + '> \
-                </a>'
-};
+import { Octokit } from "https://cdn.pika.dev/@octokit/core";
 
-function getFiles(content) {
-    var files = '<ul class="list-group overrides">';
-    var file_icon = '<span class="oi oi-file"></span>';
-    for (file of content) {
-        files += '<li class="list-group-item">' + file_icon + getFileDOM(file) + '</li>';
-    };
-    files += '</ul>';
-    return files
-};
-
-function listFiles(repo_content_api_url) {
-    return fetch(repo_content_api_url)
-        .then(response => response.json())
-        .then(content => {
-            $('.repo-files').html(getFiles(content));
-        })
-};
-
-function getAuthToken() {
+function getOAuthToken() {
     return fetch('/api/auth')
         .then(response => response.json())
         .then(data => { return data['token'] });
 }
 
-function pushChanges(text) {
-    const token_string = getAuthToken();
-    var oauthAuth = new GitHub({
-        token: token_string
-    });
+function pushChanges(repo, branch, path, message, content, sha) {
+    const oauth_token = getOAuthToken();
+    const octokit = new Octokit({ auth: oauth_token });
+    octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+        owner: 'OpenPecha',
+        repo: repo,
+        path: path,
+        message: message,
+        content: window.btoa(content),
+        sha: sha,
+        branch: branch
+    })
 };
 
 function viewFile(text) {
@@ -58,7 +42,7 @@ function viewFile(text) {
 };
 
 function fetchFileContent(volumeFileDom) {
-    const download_url = $(volumeFileDom).children("#file-download-url").val();
+    const download_url = $(volumeFileDom).children("#download-url").val();
     return fetch(download_url)
         .then(response => response.text())
         .then(viewFile)
