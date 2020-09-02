@@ -4,7 +4,7 @@ function getFileDOM(file) {
                 <input type="hidden" id="download-url" value=' + file['download_url'] + '> \
                 <input type="hidden" id="path" value=' + file['path'] + '> \
                 <input type="hidden" id="sha" value=' + file['sha'] + '> \
-                </a>'
+            </a>'
 };
 
 function getFiles(content) {
@@ -17,8 +17,9 @@ function getFiles(content) {
     return files
 };
 
-function listFiles(repo_content_api_url) {
-    return fetch(repo_content_api_url)
+function listFiles(org, repo, branch) {
+    const repo_content_url = `https://api.github.com/repos/${org}/${repo}/contents?ref=${branch}`;
+    return fetch(repo_content_url)
         .then(response => response.json())
         .then(content => {
             $('.repo-files').html(getFiles(content));

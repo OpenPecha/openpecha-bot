@@ -1,29 +1,21 @@
-import { Octokit } from "https://cdn.pika.dev/@octokit/core";
-
-function getOAuthToken() {
-    return fetch('/api/auth')
-        .then(response => response.json())
-        .then(data => { return data['token'] });
-}
-
-function pushChanges(repo, branch, path, message, content, sha) {
-    const oauth_token = getOAuthToken();
-    const octokit = new Octokit({ auth: oauth_token });
-    octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
-        owner: 'OpenPecha',
-        repo: repo,
-        path: path,
-        message: message,
-        content: window.btoa(content),
-        sha: sha,
-        branch: branch
-    })
+async function fetchFileContent(volumeFileDom) {
+    const download_url = $(volumeFileDom).children("#download-url").val();
+    const response = await fetch(download_url);
+    const content = await response.text();
+    return content;
 };
 
-function viewFile(text) {
+async function prepareTextEditorForm(volumeFileDom) {
+    const text = await fetchFileContent(volumeFileDom);
+    const path = $(volumeFileDom).children("#path").val();
+    const sha = $(volumeFileDom).children("#sha").val();
+    console.log(path);
+    console.log(sha);
     const editor_html = '\
         <form id="editor-form"> \
             <textarea class="editor-textarea">' + text + '</textarea> \
+            <input type="hidden" id="path" value=' + path + '> \
+            <input type="hidden" id="sha" value=' + sha + '> \
             <br> \
             <button class="btn btn-primary">Save</button> \
         </form>';
@@ -41,13 +33,6 @@ function viewFile(text) {
     editor.setSize(null, 800);
 };
 
-function fetchFileContent(volumeFileDom) {
-    const download_url = $(volumeFileDom).children("#download-url").val();
-    return fetch(download_url)
-        .then(response => response.text())
-        .then(viewFile)
-};
-
 function addEditorTitle(volumeFileDom) {
     const volumeFilename = $(volumeFileDom).children("#volume-filename").text();
     $("p.editor-title").text(volumeFilename);
@@ -55,7 +40,7 @@ function addEditorTitle(volumeFileDom) {
 
 function launchEditor(volumeFileDom) {
     addEditorTitle(volumeFileDom);
-    fetchFileContent(volumeFileDom);
+    prepareTextEditorForm(volumeFileDom);
 };
 
 $(document).ready(function () {

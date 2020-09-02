@@ -12,10 +12,9 @@
     </div>
 </div>
 
-<script type="module" src="{{ url_for('static', filename='js/editor.js') }}"></script>
 <script src="{{ url_for('static', filename='js/files.js') }}"></script>
-
 <script>
-    listFiles('https://api.github.com/repos/OpenPecha/{{ pecha_id }}/contents?ref={{ branch }}');
+    listFiles('OpenPecha', '{{ pecha_id }}', '{{ branch }}');
 </script>
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
 {% endblock %}
