@@ -1,4 +1,4 @@
-import { Octokit } from "https://cdn.pika.dev/@octokit/core";
+import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
 
 function getOAuthToken() {
     return fetch('/api/auth')

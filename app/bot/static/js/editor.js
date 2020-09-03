@@ -9,8 +9,6 @@ async function prepareTextEditorForm(volumeFileDom) {
     const text = await fetchFileContent(volumeFileDom);
     const path = $(volumeFileDom).children("#path").val();
     const sha = $(volumeFileDom).children("#sha").val();
-    console.log(path);
-    console.log(sha);
     const editor_html = '\
         <form id="editor-form"> \
             <textarea class="editor-textarea">' + text + '</textarea> \

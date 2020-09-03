@@ -1,5 +1,5 @@
-from bot import app, init_db
-from bot.config import Config
+from .bot import app, init_db
+from .bot.config import Config
 
 if __name__ == "__main__":
     init_db()
