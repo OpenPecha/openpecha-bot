@@ -254,5 +254,8 @@ def download_api(org, pecha_export_fn):
 
 @app.route("/api/auth")
 def auth():
-    result = {"token": session["user_access_token"]}
+    if "user_id" in session:
+        result = {"status": 200, "token": session["user_access_token"]}
+    else:
+        result = {"status": 404, "message": "Bad Credential!"}
     return jsonify(result)
