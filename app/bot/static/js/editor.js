@@ -1,3 +1,23 @@
+import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
+
+var editor = {
+    init: function () {
+        this.backend = new CodeMirror.fromTextArea($(".editor-textarea")[0], {
+            mode: {
+                name: "python",
+                version: 3,
+                singleLineStringErrors: false
+            },
+            lineNumbers: true,
+            // theme: "dracula"
+        });
+        this.backend.setSize(null, 800);
+    },
+    getValue: function () {
+        return this.backend.getValue();
+    }
+}
+
 async function fetchFileContent(volumeFileDom) {
     const download_url = $(volumeFileDom).children("#download-url").val();
     const response = await fetch(download_url);
@@ -7,28 +27,25 @@ async function fetchFileContent(volumeFileDom) {
 
 async function prepareTextEditorForm(volumeFileDom) {
     const text = await fetchFileContent(volumeFileDom);
+    const org = $(volumeFileDom).children("#org").val();
+    const repo = $(volumeFileDom).children("#repo").val();
+    const branch = $(volumeFileDom).children("#branch").val();
     const path = $(volumeFileDom).children("#path").val();
     const sha = $(volumeFileDom).children("#sha").val();
     const editor_html = '\
         <form id="editor-form"> \
-            <textarea class="editor-textarea">' + text + '</textarea> \
+           <textarea class="editor-textarea">' + text + '</textarea> \
+            <input type="hidden" id="org" value=' + org + '> \
+            <input type="hidden" id="repo" value=' + repo + '> \
+            <input type="hidden" id="branch" value=' + branch + '> \
             <input type="hidden" id="path" value=' + path + '> \
             <input type="hidden" id="sha" value=' + sha + '> \
             <br> \
-            <button class="btn btn-primary">Save</button> \
+            <button id="update-content" class="btn btn-primary">Save</button> \
         </form>';
     $('div.editor').html(editor_html);
 
-    var editor = new CodeMirror.fromTextArea($(".editor-textarea")[0], {
-        mode: {
-            name: "python",
-            version: 3,
-            singleLineStringErrors: false
-        },
-        lineNumbers: true,
-        // theme: "dracula"
-    });
-    editor.setSize(null, 800);
+    editor.init();
 };
 
 function addEditorTitle(volumeFileDom) {
@@ -44,5 +61,43 @@ function launchEditor(volumeFileDom) {
 $(document).ready(function () {
     $("body").delegate("#volume-file", "click", function () {
         launchEditor(this);
+    });
+});
+
+async function getOAuthToken() {
+    const response = await fetch('/api/auth');
+    const data = await response.json();
+    return data['token'];
+}
+
+async function pushChanges(org, repo, branch, path, message, content, sha) {
+    const oauth_token = await getOAuthToken();
+    console.log(oauth_token);
+    const octokit = new Octokit({ auth: oauth_token });
+    octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+        owner: org,
+        repo: repo,
+        path: path,
+        message: message,
+        content: window.btoa(content),
+        sha: sha,
+        branch: branch
+    })
+};
+
+async function updateContent(editorForm) {
+    const org = $(editorForm).children("#org").val();
+    const repo = $(editorForm).children("#repo").val();
+    const branch = $(editorForm).children("#branch").val();
+    const path = $(editorForm).children("#path").val();
+    const sha = $(editorForm).children("#sha").val();
+    const content = editor.getValue();
+
+    await pushChanges(org, repo, branch, path, "test message", content, sha);
+};
+
+$(document).ready(function () {
+    $("body").delegate("#update-content", "click", function () {
+        updateContent(this.parentElement);
     });
 });

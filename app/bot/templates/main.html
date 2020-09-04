@@ -16,7 +16,5 @@
 <script>
     listFiles('OpenPecha', '{{ pecha_id }}', '{{ branch }}');
 </script>
-<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
-<script type="module" src="{{ url_for('static', filename='js/update.js') }}"></script>
-
+<script type="module" src="{{ url_for('static', filename='js/editor.js') }}"></script>
 {% endblock %}
