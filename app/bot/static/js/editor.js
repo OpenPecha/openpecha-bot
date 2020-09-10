@@ -3,13 +3,9 @@ import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
 var editor = {
     init: function () {
         this.backend = new CodeMirror.fromTextArea($(".editor-textarea")[0], {
-            mode: {
-                name: "python",
-                version: 3,
-                singleLineStringErrors: false
-            },
+            mode: "hfml",
             lineNumbers: true,
-            // theme: "dracula"
+            theme: "darcula"
         });
         this.backend.setSize(null, 800);
     },
@@ -72,7 +68,6 @@ async function getOAuthToken() {
 
 async function pushChanges(org, repo, branch, path, message, content, sha) {
     const oauth_token = await getOAuthToken();
-    console.log(oauth_token);
     const octokit = new Octokit({ auth: oauth_token });
     octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
         owner: org,
