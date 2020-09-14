@@ -66,6 +66,10 @@ async function getOAuthToken() {
     return data['token'];
 }
 
+function utf8_to_b64(str) {
+    return window.btoa(unescape(encodeURIComponent(str)));
+}
+
 async function pushChanges(org, repo, branch, path, message, content, sha) {
     const oauth_token = await getOAuthToken();
     const octokit = new Octokit({ auth: oauth_token });
@@ -74,7 +78,7 @@ async function pushChanges(org, repo, branch, path, message, content, sha) {
         repo: repo,
         path: path,
         message: message,
-        content: window.btoa(content),
+        content: utf8_to_b64(content),
         sha: sha,
         branch: branch
     })
