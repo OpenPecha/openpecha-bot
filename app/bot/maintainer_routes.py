@@ -3,10 +3,8 @@ import time
 import requests
 from flask import flash, jsonify, redirect, render_template, request, session, url_for
 from flask_github import GitHub
-from github3 import GitHub as GitHub3
 
 from . import app, db_session, utils
-from .bot_routes import github_app
 from .forms import PechaSecretKeyForm
 from .models import Pecha, RoleType, User
 
@@ -53,6 +51,8 @@ def logout():
 
 @app.route("/<pecha_id>/<branch>")
 def index(pecha_id, branch):
+    if "user_id" in session:
+        return redirect(url_for("editor", pecha_id=pecha_id, branch=branch))
     session["pecha_id"] = pecha_id
     session["branch"] = branch
     return render_template("login.html")
@@ -60,9 +60,27 @@ def index(pecha_id, branch):
 
 @app.route("/editor/<pecha_id>/<branch>")
 def editor(pecha_id, branch):
+    # login or register to github account
+    if "user_id" not in session:
+        return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
+
+    # Register user to text repo if not
+    user = User.query.get(session["user_id"])
+    print(user.role)
+    if not user.role:
+        return render_template("register.html", pecha_id=pecha_id, branch=branch)
+
+    is_owner = False
+    if user.role == RoleType.owner:
+        is_owner = True
     layers, formats = utils.get_opf_layers_and_formats(pecha_id)
     return render_template(
-        "main.html", pecha_id=pecha_id, branch=branch, layers=layers, formats=formats
+        "main.html",
+        pecha_id=pecha_id,
+        branch=branch,
+        layers=layers,
+        formats=formats,
+        is_owner=is_owner,
     )
 
 
@@ -71,6 +89,16 @@ def validate_secret_key():
     pecha_id = request.args.get("pecha_id")
     branch = request.args.get("branch")
     form = PechaSecretKeyForm()
+    if request.method != "POST":
+        context = {
+            "title": "Enter Pecha Secret Key",
+            "form": form,
+            "pecha_id": pecha_id,
+            "branch": branch,
+            "is_owner": False,
+        }
+        return render_template("secret_key_form.html", **context)
+
     if form.validate_on_submit():
         secret_key = form.secret_key.data
         if len(secret_key) == 32:
@@ -82,32 +110,18 @@ def validate_secret_key():
                     )
                 )
         flash("Invalid Pecha Secret Key!", "danger")
-    context = {
-        "title": "Enter Pecha Secret Key",
-        "form": form,
-        "pecha_id": pecha_id,
-        "branch": branch,
-        "is_owner": False,
-    }
-    return render_template("secret_key_form.html", **context)
+        return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
 
 
-@app.route("/register-user")
+@app.route("/register-user", methods=["GET", "POST"])
 def register_user():
     pecha_id = request.args.get("pecha_id")
     branch = request.args.get("branch")
     is_owner = request.args.get("is_owner")
 
-    # Login with Github
-    if session.get("user_id", None) is None:
-        session["next_url"] = url_for(
-            "register_user", pecha_id=pecha_id, branch=branch, is_owner=is_owner
-        )
-        return github.authorize()
-
     # Update pecha-id and role of the user
     user = User.query.get(session["user_id"])
-    if is_owner:
+    if is_owner == "True":
         user.role = RoleType.owner
     else:
         user.role = RoleType.contributor
@@ -115,10 +129,7 @@ def register_user():
     db_session.commit()
     send_invitation(user, pecha_id)
 
-    # Logout after registration
-    logout()
-
-    return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
+    return redirect(url_for("editor", pecha_id=pecha_id, branch=branch))
 
 
 def send_invitation(user, pecha_id):
@@ -255,7 +266,14 @@ def download_api(org, pecha_export_fn):
 @app.route("/api/auth")
 def auth():
     if "user_id" in session:
-        result = {"status": 200, "token": session["user_access_token"]}
+        user = User.query.get(session["user_id"])
+        if user:
+            result = {"status": 200, "token": session["user_access_token"]}
+        else:
+            result = {"status": 404, "message": "User not registered."}
     else:
-        result = {"status": 404, "message": "Bad Credential!"}
+        result = {
+            "status": 404,
+            "message": "User not logged in. Please login to openpecha editor",
+        }
     return jsonify(result)

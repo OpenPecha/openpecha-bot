@@ -1,0 +1,13 @@
+{% extends "login_layout.html" %}
+
+{% block title %}OpenPecha | Registration{% endblock %}
+
+{%block form_content %}
+<center>
+    <p>Register as</p>
+</center>
+<a href="{{ url_for('validate_secret_key', pecha_id=pecha_id, branch=branch) }}"
+    class="btn btn-primary btn-block">Owner</a>
+<a href="{{ url_for('register_user', pecha_id=pecha_id, branch=branch, is_owner=False) }}"
+    class="btn btn-primary btn-block">Contributor</a>
+{% endblock %}

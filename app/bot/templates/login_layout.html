@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-fluid bg">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-6 col-md-3">
+      <form class="login-form-container">
+        {% block form_content %}{% endblock %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
