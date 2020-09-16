@@ -59,6 +59,11 @@
             </a>
         </li>
         {% endif %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout', pecha_id=pecha_id, branch=branch) }}">
+                <button type="button" class="btn btn-link">Logout</button>
+            </a>
+        </li>
     </ul>
 </div>
 {% endblock %}
@@ -76,8 +81,9 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/files.js') }}"></script>
-<script>
+<script type="module">
+    import { listFiles } from "{{ url_for('static', filename='js/files.js') }}";
+
     listFiles('OpenPecha', '{{ pecha_id }}', '{{ branch }}');
 </script>
 <script type="module" src="{{ url_for('static', filename='js/editor.js') }}"></script>

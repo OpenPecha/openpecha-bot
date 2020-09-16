@@ -45,8 +45,12 @@ def login():
     return github.authorize()
 
 
+@app.route("/logout")
 def logout():
+    pecha_id = request.args.get("pecha_id")
+    branch = request.args.get("branch")
     session.pop("user_id", None)
+    return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
 
 
 @app.route("/<pecha_id>/<branch>")
