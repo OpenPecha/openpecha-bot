@@ -22,3 +22,6 @@ class Config:
     GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 
     GITHUBREPO_OWNER = "OpenPecha"
+
+    # admin user
+    OP_ADMIN_USERS = os.environ["OP_ADMIN_USERS"]

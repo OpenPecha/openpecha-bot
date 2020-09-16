@@ -30,6 +30,9 @@ def authorized(access_token):
     # add user to database
     if user is None:
         user = User(username=github_user["login"])
+        # add admin user
+        if not user.role and user.username in app.config["OP_ADMIN_USERS"]:
+            user.role = RoleType.admin
         db_session.add(user)
         db_session.commit()
 
@@ -39,9 +42,6 @@ def authorized(access_token):
 
 @app.route("/login")
 def login():
-    session["next_url"] = url_for(
-        "editor", pecha_id=session["pecha_id"], branch=session["branch"]
-    )
     return github.authorize()
 
 
@@ -53,8 +53,7 @@ def logout():
 def index(pecha_id, branch):
     if "user_id" in session:
         return redirect(url_for("editor", pecha_id=pecha_id, branch=branch))
-    session["pecha_id"] = pecha_id
-    session["branch"] = branch
+    session["next_url"] = url_for("editor", pecha_id=pecha_id, branch=branch)
     return render_template("login.html")
 
 
@@ -66,8 +65,7 @@ def editor(pecha_id, branch):
 
     # Register user to text repo if not
     user = User.query.get(session["user_id"])
-    print(user.role)
-    if not user.role:
+    if not user.pecha_id:
         return render_template("register.html", pecha_id=pecha_id, branch=branch)
 
     is_owner = False
@@ -224,14 +222,13 @@ def download(org, pecha_export_fn):
 
 @app.route("/admin")
 def admin_dashboard():
-    # global NEXT_URL
-    # if session.get("user_id", None) is None:
-    #     NEXT_URL = url_for("admin_dashboard")
-    #     return github.authorize()
+    if session.get("user_id", None) is None:
+        session["next_url"] = url_for("admin_dashboard")
+        return render_template("login.html")
 
-    # user = User.query.get(session["user_id"])
-    # if user.role != RoleType.admin:
-    #     return "You don't have access to this page"
+    user = User.query.get(session["user_id"])
+    if user.username not in app.config["OP_ADMIN_USERS"]:
+        return "You don't have access to this page"
 
     pechas = Pecha.query.all()
     users = User.query.all()
