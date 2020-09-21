@@ -1,7 +1,8 @@
 function getFileDOM(file, org, repo, branch) {
     return '<a href="#" id="volume-file"> \
                 <span id="volume-filename">' + file['name'] + '</span> \
-                <input type="hidden" id="url" value=' + file['url'] + '> \
+                <input type="hidden" id="sha" value=' + file['sha'] + '> \
+                <input type="hidden" id="path" value=' + file['path'] + '> \
             </a>'
 };
 
