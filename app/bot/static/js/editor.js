@@ -6,7 +6,15 @@ var editor = {
         this.backend = new CodeMirror.fromTextArea($(".editor-textarea")[0], {
             mode: "hfml",
             lineNumbers: true,
-            theme: "darcula"
+            theme: "darcula",
+            extraKeys: {
+                "F11": function (cm) {
+                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                },
+                "Esc": function (cm) {
+                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                }
+            }
         });
         this.backend.setSize(null, 800);
     },

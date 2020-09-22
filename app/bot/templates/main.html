@@ -3,12 +3,22 @@
 <!--Fonts-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font.css') }}">
 
-<!-- Code mirror -->
+<!-- CodeMirror -->
 <script src="{{ url_for('static', filename='codemirror/lib/codemirror.js') }}"></script>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='codemirror/lib/codemirror.css') }}">
+
+<!-- CodeMirror theme -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='codemirror/theme/darcula.css') }}">
+
+<!-- CodeMirror mode -->
 <script src="{{ url_for('static', filename='codemirror/addon/mode/simple.js') }}"></script>
 <script src="{{ url_for('static', filename='codemirror/mode/hfml/hfml.js') }}"></script>
+
+<!-- CodeMirror adons -->
+<link rel="stylesheet" type="text/css"
+    href="{{ url_for('static', filename='codemirror/addon/display/fullscreen.css') }}">
+<script src="{{ url_for('static', filename='codemirror/addon/display/fullscreen.js') }}"></script>
+
 {% endblock %}
 
 {% block title %}Editor{% endblock %}
