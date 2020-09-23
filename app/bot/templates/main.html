@@ -3,12 +3,22 @@
 <!--Fonts-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font.css') }}">
 
-<!-- Code mirror -->
+<!-- CodeMirror -->
 <script src="{{ url_for('static', filename='codemirror/lib/codemirror.js') }}"></script>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='codemirror/lib/codemirror.css') }}">
+
+<!-- CodeMirror theme -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='codemirror/theme/darcula.css') }}">
+
+<!-- CodeMirror mode -->
 <script src="{{ url_for('static', filename='codemirror/addon/mode/simple.js') }}"></script>
 <script src="{{ url_for('static', filename='codemirror/mode/hfml/hfml.js') }}"></script>
+
+<!-- CodeMirror adons -->
+<link rel="stylesheet" type="text/css"
+    href="{{ url_for('static', filename='codemirror/addon/display/fullscreen.css') }}">
+<script src="{{ url_for('static', filename='codemirror/addon/display/fullscreen.js') }}"></script>
+
 {% endblock %}
 
 {% block title %}Editor{% endblock %}
@@ -17,7 +27,9 @@
 <div class=" container">
     <ul class="nav nav-pills s nav-fill pt-2">
         <li class="nav-item">
-            <a class="nav-link active" href="{{ url_for('index', pecha_id=pecha_id, branch=branch) }}">Editor</a>
+            <button type="button" id="files-toggle" class="btn btn-xs btn-info" data-toggle="collapse"
+                data-target="#demo">Files</button>
+            <!-- <a class="nav-link active" href="{{ url_for('index', pecha_id=pecha_id, branch=branch) }}">Editor</a> -->
         </li>
 
         <li class="nav-item dropdown">
@@ -71,15 +83,16 @@
 {% block content %}
 
 <div class="row">
-    <div class="col-3 scrollbar" id="file-list">
-        <div class="repo-files"></div>
+    <div class="col-3 scrollbar collapse" id="demo">
+        <div class="repo-files" id="file-list"></div>
     </div>
-    <div class="col">
-        <p class="editor-title"></p>
-        <div class="editor"></div>
+    <div class="col" id="editor-section">
+        <div id="editor"></div>
     </div>
 </div>
 
+<script type="module" src="{{ url_for('static', filename='js/github.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/files.js') }}"></script>
 <script type="module">
     import { listFiles } from "{{ url_for('static', filename='js/files.js') }}";
 

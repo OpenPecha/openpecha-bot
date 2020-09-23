@@ -28,3 +28,20 @@ overflow: auto;
 .table-wrapper-scroll-y {
 display: block;
 }
+
+#editor-title {
+    padding: 3px;
+    border-style: solid;
+    border-width: thin;
+    border-color: #dededf;
+}
+
+#editor-section {
+    margin-top: -2px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#editor {
+    margin-top: -15px;
+}
