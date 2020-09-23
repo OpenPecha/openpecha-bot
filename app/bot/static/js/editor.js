@@ -1,5 +1,5 @@
-import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
 import { listFiles } from "./files.js";
+import { getGHClient } from "./github.js";
 
 var editor = {
     init: function () {
@@ -23,17 +23,6 @@ var editor = {
     }
 }
 
-async function getOAuthToken() {
-    const response = await fetch('/api/auth');
-    const data = await response.json();
-    return data['token'];
-}
-
-async function getGhClient() {
-    const oauth_token = await getOAuthToken();
-    const octokit = new Octokit({ auth: oauth_token });
-    return octokit;
-}
 
 function b64_to_utf8(str) {
     return decodeURIComponent(escape(window.atob(str)));
@@ -44,7 +33,7 @@ function utf8_to_b64(str) {
 }
 
 async function getBlob(owner, repo, sha) {
-    const ghClient = await getGhClient();
+    const ghClient = await getGHClient();
     const gh_response = await ghClient.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
         owner: owner,
         repo: repo,
@@ -70,14 +59,16 @@ async function prepareTextEditorForm(volumeFileDom) {
             <br> \
             <button id="update-content" class="btn btn-primary">Save</button> \
         </form>';
-    $('div.editor').html(editor_html);
+    $('#editor').html(editor_html);
 
     editor.init();
 };
 
 function addEditorTitle(volumeFileDom) {
     const volumeFilename = $(volumeFileDom).children("#volume-filename").text();
-    $("p.editor-title").text(volumeFilename);
+    const editorSection = $("#editor-section");
+    editorSection.children("#editor-title").remove();
+    editorSection.prepend('<p id="editor-title">' + '/' + volumeFilename + '</p>')
 };
 
 function launchEditor(volumeFileDom) {
@@ -94,7 +85,7 @@ $(document).ready(function () {
 
 async function pushChanges(org, repo, branch, path, message, content, sha) {
     // console.log(org, repo, branch, path, message, content, sha);
-    const ghClient = await getGhClient();
+    const ghClient = await getGHClient();
     const response = await ghClient.request('PUT /repos/{owner}/{repo}/contents/{path}', {
         owner: org,
         repo: repo,

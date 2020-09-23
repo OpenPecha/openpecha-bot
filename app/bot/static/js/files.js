@@ -1,3 +1,5 @@
+import { getGHClient } from "./github.js";
+
 function getFileDOM(file, org, repo, branch) {
     return '<a href="#" id="volume-file"> \
                 <span id="volume-filename">' + file['name'] + '</span> \
@@ -17,11 +19,15 @@ function getFiles(content, org, repo, branch) {
 };
 
 export async function listFiles(org, repo, branch) {
-    const repo_content_url = `https://api.github.com/repos/${org}/${repo}/contents?ref=${branch}`;
-    const response = await fetch(repo_content_url);
-    const content = await response.json();
+    const ghClient = await getGHClient();
+    const gh_response = await ghClient.request('GET /repos/{owner}/{repo}/contents/{path}', {
+        owner: org,
+        repo: repo,
+        ref: branch
+    })
     window.gh_org = org;
     window.gh_repo = repo;
     window.repo_branch = branch;
-    $('.repo-files').html(getFiles(content, org, repo, branch));
+    $('.repo-files').html(getFiles(gh_response.data, org, repo, branch));
+    $("#files-toggle").trigger("click");
 };
