@@ -93,7 +93,7 @@ def validate_secret_key():
     form = PechaSecretKeyForm()
     if request.method != "POST":
         context = {
-            "title": "Enter Pecha Secret Key",
+            "title": "Secret Key",
             "form": form,
             "pecha_id": pecha_id,
             "branch": branch,
