@@ -57,7 +57,7 @@ async function prepareTextEditorForm(volumeFileDom) {
             <input type="hidden" id="sha" value=' + sha + '> \
             <input type="hidden" id="path" value=' + path + '> \
             <br> \
-            <button id="update-content" class="btn btn-primary">Save</button> \
+            <button id="update-content" class="btn btn-primary" type="button">Save</button> \
         </form>';
     $('#editor').html(editor_html);
 
