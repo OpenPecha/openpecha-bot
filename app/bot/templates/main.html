@@ -66,14 +66,16 @@
         </li>
         {% if is_owner %}
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('update', pecha_id=pecha_id, branch=branch) }}">
-                <button type="button" class="btn btn-sm btn-outline-primary">Update</button>
+            <a href="{{ url_for('update', pecha_id=pecha_id, branch=branch) }}" type="button"
+                class="btn btn-xs btn-success">
+                Update
             </a>
         </li>
         {% endif %}
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('logout', pecha_id=pecha_id, branch=branch) }}">
-                <button type="button" class="btn btn-link">Logout</button>
+            <a href="{{ url_for('logout', pecha_id=pecha_id, branch=branch) }}" type="button"
+                class="btn btn-xs btn-warning">
+                Logout
             </a>
         </li>
     </ul>
