@@ -3,6 +3,8 @@
 <!--Fonts-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font.css') }}">
 
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/toolbar.css') }}">
+
 <!-- CodeMirror -->
 <script src="{{ url_for('static', filename='codemirror/lib/codemirror.js') }}"></script>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='codemirror/lib/codemirror.css') }}">
@@ -24,66 +26,83 @@
 {% block title %}OpenPecha | Editor{% endblock %}
 
 {% block nav %}
-<div class=" container">
-    <ul class="nav nav-pills s nav-fill pt-2">
-        <li class="nav-item">
-            <button type="button" id="files-toggle" class="btn btn-xs btn-info" data-toggle="collapse"
-                data-target="#demo">Files</button>
-            <!-- <a class="nav-link active" href="{{ url_for('index', pecha_id=pecha_id, branch=branch) }}">Editor</a> -->
-        </li>
+<div class="toolbar">
 
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-                aria-expanded="false">
-                Export
-            </a>
-            <div class="dropdown-menu">
-                <form class="px-3 py-1" action="{{ url_for('apply_layers', pecha_id=pecha_id, branch=branch) }}"
-                    method="post">
-                    <fieldset class="form-group">
-                        <b>Choose layers:</b>
-                        {% for layer in layers %}
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="layers" value="{{ layer }}">
-                            <label class="form-check-label">
-                                <i>{{ layer }}</i>
-                            </label>
-                        </div>
-                        {% endfor %}
-                        <b>Choose Format:</b>
-                        {% for format in formats %}
-                        <div class="form-check">
-                            <input type="radio" class="form-check-input" name="format" value="{{ format }}">
-                            <label class="form-check-label">
-                                <i>{{ format }}</i>
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </fieldset>
-                    <button type="submit" class="btn btn-sm btn-outline-primary btn-block">Apply</button>
-                </form>
-            </div>
-        </li>
-        {% if is_owner %}
-        <li class="nav-item">
-            <a href="{{ url_for('update', pecha_id=pecha_id, branch=branch) }}" type="button"
-                class="btn btn-xs btn-success">
-                Update
-            </a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-            <a href="{{ url_for('logout', pecha_id=pecha_id, branch=branch) }}" type="button"
-                class="btn btn-xs btn-warning">
-                Logout
-            </a>
-        </li>
-    </ul>
+    <div class="toolbar-item item-left">
+        <a href="#"><img src="{{ url_for('static', filename='/img/icons/book.png') }}" alt="book-icon"
+                style="height: 25px; width: 25px;"></a>
+    </div>
+    <div class="item-left delimeter"></div>
+    <div class="toolbar-item item-left">
+        <div class="btn-group">
+            <button class="dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="true">Annotations</button>
+            <ul class="dropdown-menu">
+                <h6 class="dropdown-header">VIEWS</h6>
+                <li class="dropdown-submenu">
+                    <a class="dropdown-item" href="#">Tsadra Ebook</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Toc</a></li>
+                        <li><a class="dropdown-item" href="#">Tsawa</a></li>
+                        <li><a class="dropdown-item" href="#">Citation</a></li>
+                        <li><a class="dropdown-item" href="#">Yigchung</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown-submenu">
+                    <a class="dropdown-item" href="#">Mordern Version</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Normalization</a></li>
+                    </ul>
+                </li>
+                <div class="dropdown-divider"></div>
+                <h6 class="dropdown-header">ANNOTATIONS</h6>
+                <li><a class="dropdown-item" href="#">Metadata</a></li>
+                <li><a class="dropdown-item" href="#">Pagination</a></li>
+                <li><a class="dropdown-item" href="#">Tsawa</a></li>
+                <li><a class="dropdown-item" href="#">Yigchung</a></li>
+                <li><a class="dropdown-item" href="#">Sabche</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="item-left delimeter"></div>
+    <div class="toolbar-item item-left">
+        <span class="toolbar-legend">Theme</span>
+        <select onchange="selectTheme()" class="selector">
+            <option selected>default</option>
+            <option>3024-day</option>
+            <option>3024-night</option>
+            <option>abcdef</option>
+            <option>ambiance</option>
+            <option>ayu-dark</option>
+        </select>
+    </div>
+    <div class="item-left delimeter"></div>
+    <div class="toolbar-item item-left">
+        <a href="#"><img style="height: 18px; width: 20px; margin-top: 2px;"
+                src="{{ url_for('static', filename='/img/icons/export.png') }}" alt="upload-icon"></a>
+    </div>
+    {% if is_owner %}
+    <div class="item-left delimeter"></div>
+    <div class="toolbar-item item-left">
+        <a href="#"><span class="toolbar-button">Publish<img id="hunCaret" src="" alt=""></span></a>
+    </div>
+    {% endif %}
+
+    <div class="toolbar-item item-right">
+        <a href="#"><span class="toolbar-button">Logout<img id="hunCaret" src="" alt=""></span></a>
+    </div>
+
+    <div class="toolbar-item item-right">
+        <a href="#"><img style="height: 20px; width: 20px;"
+                src="{{ url_for('static', filename='img/icons/upload.png')}}" alt="upload-icon"></a>
+    </div>
+
 </div>
 {% endblock %}
 
 {% block content %}
-
+<button type="button" id="files-toggle" class="btn btn-xs btn-info" data-toggle="collapse"
+    data-target="#demo">Files</button>
 <div class="row">
     <div class="col-3 scrollbar collapse" id="demo">
         <div class="repo-files" id="file-list"></div>
@@ -101,4 +120,11 @@
     listFiles('OpenPecha', '{{ pecha_id }}', '{{ branch }}');
 </script>
 <script type="module" src="{{ url_for('static', filename='js/editor.js') }}"></script>
+
+<script>
+    $(".dropdown-menu li a").click(function () {
+        var selText = $(this).text();
+        $(this).parents('.btn-group').find('.dropdown-toggle').html(selText + ' <span class="caret"></span>');
+    });
+</script>
 {% endblock %}
