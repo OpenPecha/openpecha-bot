@@ -6,6 +6,14 @@
 
 }
 
+.main {
+    padding-top: 50px;
+}
+
+.list-group-item {
+    font-size: 0.7em;
+}
+
 .login-form-container {
     position: absolute;
     top: 35vh;
@@ -40,10 +48,12 @@ display: block;
     margin: 5px;
 }
 
-#editor {
-    margin-top: -15px;
-}
-
 #files-toggle {
     padding-top: 5px;
+}
+
+.CodeMirror {
+    border: 1px solid #eee;
+    height: auto;
+    font-size: 24px;
 }

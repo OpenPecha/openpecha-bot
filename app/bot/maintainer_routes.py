@@ -53,24 +53,24 @@ def logout():
     return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
 
 
-@app.route("/<pecha_id>/<branch>")
-def index(pecha_id, branch):
+@app.route("/<pecha_id>")
+def index(pecha_id):
     if "user_id" in session:
-        return redirect(url_for("editor", pecha_id=pecha_id, branch=branch))
-    session["next_url"] = url_for("editor", pecha_id=pecha_id, branch=branch)
+        return redirect(url_for("editor", pecha_id=pecha_id))
+    session["next_url"] = url_for("editor", pecha_id=pecha_id)
     return render_template("login.html")
 
 
-@app.route("/editor/<pecha_id>/<branch>")
-def editor(pecha_id, branch):
+@app.route("/editor/<pecha_id>")
+def editor(pecha_id):
     # login or register to github account
     if "user_id" not in session:
-        return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
+        return redirect(url_for("index", pecha_id=pecha_id))
 
     # Register user to text repo if not
     user = User.query.get(session["user_id"])
     if not user.pecha_id:
-        return render_template("register.html", pecha_id=pecha_id, branch=branch)
+        return render_template("register.html", pecha_id=pecha_id)
 
     is_owner = False
     if user.role == RoleType.owner:
@@ -79,7 +79,6 @@ def editor(pecha_id, branch):
     return render_template(
         "main.html",
         pecha_id=pecha_id,
-        branch=branch,
         layers=layers,
         formats=formats,
         is_owner=is_owner,
@@ -89,14 +88,12 @@ def editor(pecha_id, branch):
 @app.route("/validate-secret", methods=["GET", "POST"])
 def validate_secret_key():
     pecha_id = request.args.get("pecha_id")
-    branch = request.args.get("branch")
     form = PechaSecretKeyForm()
     if request.method != "POST":
         context = {
             "title": "Secret Key",
             "form": form,
             "pecha_id": pecha_id,
-            "branch": branch,
             "is_owner": False,
         }
         return render_template("secret_key_form.html", **context)
@@ -107,18 +104,15 @@ def validate_secret_key():
             pecha = Pecha.query.filter_by(secret_key=secret_key).first()
             if pecha:
                 return redirect(
-                    url_for(
-                        "register_user", pecha_id=pecha.id, branch=branch, is_owner=True
-                    )
+                    url_for("register_user", pecha_id=pecha.id, is_owner=True)
                 )
         flash("Invalid Pecha Secret Key!", "danger")
-        return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
+        return redirect(url_for("index", pecha_id=pecha_id))
 
 
 @app.route("/register-user", methods=["GET", "POST"])
 def register_user():
     pecha_id = request.args.get("pecha_id")
-    branch = request.args.get("branch")
     is_owner = request.args.get("is_owner")
 
     # Update pecha-id and role of the user
@@ -131,7 +125,7 @@ def register_user():
     db_session.commit()
     send_invitation(user, pecha_id)
 
-    return redirect(url_for("editor", pecha_id=pecha_id, branch=branch))
+    return redirect(url_for("editor", pecha_id=pecha_id))
 
 
 def send_invitation(user, pecha_id):

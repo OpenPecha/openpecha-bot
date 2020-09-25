@@ -1,12 +1,13 @@
-import { listFiles } from "./files.js";
 import { getGHClient } from "./github.js";
 
 var editor = {
     init: function () {
         this.backend = new CodeMirror.fromTextArea($(".editor-textarea")[0], {
             mode: "hfml",
+            lineWrapping: true,
             lineNumbers: true,
-            theme: "darcula",
+            viewportMargin: Infinity,
+            // theme: "darcula",
             extraKeys: {
                 "F11": function (cm) {
                     cm.setOption("fullScreen", !cm.getOption("fullScreen"));
@@ -16,7 +17,6 @@ var editor = {
                 }
             }
         });
-        this.backend.setSize(null, 800);
     },
     getValue: function () {
         return this.backend.getValue();
@@ -56,8 +56,6 @@ async function prepareTextEditorForm(volumeFileDom) {
            <textarea class="editor-textarea">' + b64_to_utf8(data) + '</textarea> \
             <input type="hidden" id="sha" value=' + sha + '> \
             <input type="hidden" id="path" value=' + path + '> \
-            <br> \
-            <button id="update-content" class="btn btn-primary" type="button">Save</button> \
         </form>';
     $('#editor').html(editor_html);
 
@@ -68,11 +66,11 @@ function addEditorTitle(volumeFileDom) {
     const volumeFilename = $(volumeFileDom).children("#volume-filename").text();
     const editorSection = $("#editor-section");
     editorSection.children("#editor-title").remove();
-    editorSection.prepend('<p id="editor-title">' + '/' + volumeFilename + '</p>')
+    editorSection.prepend(`<p id="editor-title">/${volumeFilename}</p>`)
 };
 
 function launchEditor(volumeFileDom) {
-    addEditorTitle(volumeFileDom);
+    // addEditorTitle(volumeFileDom);
     prepareTextEditorForm(volumeFileDom);
 };
 
@@ -112,14 +110,14 @@ async function updateContent(editorForm) {
         alert("Changes saved!");
         const new_sha = response['data']['content']['sha'];
         $(editorForm).children("#sha").val(new_sha);
-        listFiles(window.gh_org, window.gh_repo, window.repo_branch);
     } else {
         alert("Changes cannot be saved");
     }
 };
 
 $(document).ready(function () {
-    $("body").delegate("#update-content", "click", function () {
-        updateContent(this.parentElement);
+    $("body").delegate("#upload", "click", function () {
+        const editorForm = $('#editor-form');
+        updateContent(editorForm);
     });
 });
