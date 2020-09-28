@@ -154,10 +154,8 @@ def create_export_issue(pecha_id, layers="", format_=".epub"):
 
 @app.route("/apply-layers", methods=["POST"])
 def apply_layers():
-    global app
     # Get layers and format
     pecha_id = request.args.get("pecha_id")
-    branch = request.args.get("branch")
     layers = request.form.getlist("layers")
     format_ = request.form.getlist("format")
 
@@ -172,7 +170,7 @@ def apply_layers():
     else:
         flash(f"{pecha_id} cloud not be exported. Please try again later", "danger")
 
-    return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
+    return redirect(url_for("index", pecha_id=pecha_id))
 
 
 @app.route("/update")

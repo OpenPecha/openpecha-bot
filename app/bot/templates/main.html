@@ -85,8 +85,9 @@
     </div>
     <div class="item-left delimeter"></div>
     <div class="toolbar-item item-left">
-        <a href="#"><img style="height: 18px; width: 20px; margin-top: 2px;"
-                src="{{ url_for('static', filename='img/icons/export.png') }}" alt="upload-icon"></a>
+        <a href="#" data-toggle="modal" data-target="#exportModal"><img
+                style="height: 18px; width: 18px; margin-top: 2px;"
+                src="{{ url_for('static', filename='img/icons/download.png') }}" alt="upload-icon"></a>
     </div>
     {% if is_owner %}
     <div class="item-left delimeter"></div>
@@ -110,6 +111,48 @@
 {% endblock %}
 
 {% block content %}
+
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Download</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('apply_layers', pecha_id=pecha_id, branch=branch) }}" method="post">
+                    <fieldset class="form-group">
+                        <b>Choose Annotations</b>
+                        {% for layer in layers %}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="layers" value="{{ layer }}">
+                            <label class="form-check-label">
+                                <i>{{ layer }}</i>
+                            </label>
+                        </div>
+                        {% endfor %}
+                        <b>Choose Format:</b>
+                        {% for format in formats %}
+                        <div class="form-check">
+                            <input type="radio" class="form-check-input" name="format" value="{{ format }}">
+                            <label class="form-check-label">
+                                <i>{{ format }}</i>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </fieldset>
+                    <button type="submit" class="btn btn-sm btn-outline-success btn-block">Download</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row main">
     <div class="col-3 scrollbar collapse" id="demo">
         <div class="repo-files" id="file-list"></div>
@@ -118,7 +161,6 @@
         <div class="container" id="editor"></div>
     </div>
 </div>
-
 
 <script src="{{ url_for('static', filename='js/toolbar.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='js/github.js') }}"></script>

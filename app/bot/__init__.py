@@ -1,5 +1,3 @@
-import os
-
 from flask import Flask
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -29,4 +27,4 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
 
-from . import bot_routes, maintainer_routes  # isort:skip
+from . import bot_routes, editor_routes  # isort:skip
