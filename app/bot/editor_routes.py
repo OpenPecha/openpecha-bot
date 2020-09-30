@@ -173,22 +173,21 @@ def apply_layers():
     return redirect(url_for("index", pecha_id=pecha_id))
 
 
-@app.route("/update")
-def update():
+@app.route("/publish")
+def publish():
     pecha_id = request.args.get("pecha_id")
-    branch = request.args.get("branch")
 
     # Login with Github
     if session.get("user_id", None) is None:
-        session["next_url"] = url_for("update", pecha_id=pecha_id, branch=branch)
+        session["next_url"] = url_for("update", pecha_id=pecha_id)
         return github.authorize()
 
     user = User.query.get(session["user_id"])
     if user.role == RoleType.owner:
         issue_title = "Update OPF"
-        issue_body = branch
+        issue_body = "create publish"
         issue = utils.create_issue(
-            pecha_id, issue_title, body=issue_body, labels=["update"]
+            pecha_id, issue_title, body=issue_body, labels=["publish"]
         )
 
         if issue:
@@ -203,7 +202,7 @@ def update():
     else:
         flash("Only owner can update the pecha", "danger")
 
-    return redirect(url_for("index", pecha_id=pecha_id, branch=branch))
+    return redirect(url_for("index", pecha_id=pecha_id))
 
 
 @app.route("/download/<org>/<pecha_export_fn>")

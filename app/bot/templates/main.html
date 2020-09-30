@@ -92,12 +92,13 @@
     {% if is_owner %}
     <div class="item-left delimeter"></div>
     <div class="toolbar-item item-left">
-        <a href="#"><span class="toolbar-button">Publish<img id="hunCaret" src="" alt=""></span></a>
+        <a id="publish-link" href="{{ url_for('publish', pecha_id=pecha_id) }}"><span
+                class="toolbar-button">Publish</span></a>
     </div>
     {% endif %}
 
     <div class="toolbar-item item-right">
-        <a href="{{ url_for('logout', pecha_id=pecha_id) }}"><span class="toolbar-button">Logout<img id="hunCaret"
+        <a id=href="{{ url_for('logout', pecha_id=pecha_id) }}"><span class="toolbar-button">Logout<img id="hunCaret"
                     src="" alt=""></span></a>
     </div>
 
