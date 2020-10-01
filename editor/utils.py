@@ -1,0 +1,70 @@
+import requests
+from flask import current_app
+from github3 import GitHub
+from github3.apps import create_jwt_headers
+
+from . import app
+
+
+def get_opf_layers_and_formats(pecha_id):
+    meta_url = f"https://raw.githubusercontent.com/OpenPecha/{pecha_id}/master/{pecha_id}.opf/meta.yml"
+    content = requests.get(meta_url).content.decode()
+    layer_names = []
+    formats = [".epub"]
+    for layer_name in content.split("layers:")[-1].split("-"):
+        cleaned_layer_name = layer_name.strip()
+        if not cleaned_layer_name:
+            continue
+        layer_names.append(cleaned_layer_name)
+    return layer_names, formats
+
+
+def get_installation_id(owner, repo):
+    "https://developer.github.com/v3/apps/#find-repository-installation"
+    url = f"https://api.github.com/repos/{owner}/{repo}/installation"
+    headers = create_jwt_headers(
+        current_app.config["GITHUBAPP_KEY"], current_app.config["GITHUBAPP_ID"]
+    )
+
+    response = requests.get(url=url, headers=headers)
+    if response.status_code != 200:
+        raise Exception(f"Status code : {response.status_code}, {response.json()}")
+    return response.json()["id"]
+
+
+def get_installation_access_token(installation_id):
+    url = f"https://api.github.com/app/installations/{installation_id}/access_tokens"
+    headers = create_jwt_headers(
+        current_app.config["GITHUBAPP_KEY"], current_app.config["GITHUBAPP_ID"]
+    )
+
+    response = requests.post(url=url, headers=headers)
+    if response.status_code != 201:
+        raise Exception(f"Status code : {response.status_code}, {response.json()}")
+    return response.json()["token"]
+
+
+def create_issue(pecha_id, title, body=None, labels=[]):
+    # Authenticating bot as an installation
+    installation_id = get_installation_id(
+        owner=current_app.config["GITHUBREPO_OWNER"], repo=pecha_id
+    )
+    installation_access_token = get_installation_access_token(installation_id)
+    client = GitHub(token=installation_access_token)
+
+    issue = client.create_issue(
+        current_app.config["GITHUBREPO_OWNER"],
+        pecha_id,
+        title,
+        body=body,
+        labels=labels,
+    )
+
+    return issue
+
+
+def create_export_issue(pecha_id, layers="", format_=".epub"):
+    issue_title = "Export"
+    issue_body = f"{','.join(layers)}\n{format_}"
+    issue = create_issue(pecha_id, issue_title, body=issue_body, labels=["export"])
+    return issue
