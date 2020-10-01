@@ -1,5 +1,5 @@
-# openpecha-bot
-OpenPecha github bot to manage users and all the activities.
+# openpecha-editor
+Pecha editor built with [Github Oauth app](https://docs.github.com/en/free-pro-team@latest/developers/apps/building-oauth-apps) and [CodeMirror](https://www.google.com/url?sa=t&source=web&cd=&ved=2ahUKEwjeopqJrZPsAhWMaCsKHXJQANoQFjAAegQIBhAD&url=https%3A%2F%2Fcodemirror.net%2F&usg=AOvVaw20PFOfhnB7vxOUCSI17Cfb)
 
 
 ## Resouces
