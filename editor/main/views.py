@@ -11,10 +11,16 @@ from flask import (
     session,
     url_for,
 )
+from flask_migrate import branches
 
 from editor.extensions import github_oauth
 from editor.user.models import RoleType, User
-from editor.utils import create_export_issue, create_issue, get_opf_layers_and_formats
+from editor.utils import (
+    create_export,
+    create_export_issue,
+    create_issue,
+    get_opf_layers_and_formats,
+)
 
 blueprint = Blueprint("main", __name__, url_prefix="/", static_folder="../static")
 
@@ -51,15 +57,15 @@ def editor(pecha_id):
     )
 
 
-@blueprint.route("/apply-layers", methods=["POST"])
-def apply_layers():
+@blueprint.route("/export", methods=["POST"])
+def export():
     # Get layers and format
     pecha_id = request.args.get("pecha_id")
     layers = request.form.getlist("layers")
     format_ = request.form.getlist("format")
 
     # Create github issue
-    export_issue = create_export_issue(pecha_id, layers, format_[0])
+    export_issue = create_export(pecha_id, layers, format_[0])
 
     if export_issue:
         flash(

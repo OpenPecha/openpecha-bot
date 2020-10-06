@@ -126,7 +126,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ url_for('main.apply_layers', pecha_id=pecha_id, branch=branch) }}" method="post">
+                <form action="{{ url_for('main.export', pecha_id=pecha_id) }}" method="post">
                     <fieldset class="form-group">
                         <b>Choose Annotations</b>
                         {% for layer in layers %}

@@ -27,3 +27,6 @@ flask-githubapp==0.2.0
 
 # Environment variable parsing
 environs==8.0.0
+
+# Utils
+openpecha==0.6.11
