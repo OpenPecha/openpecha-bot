@@ -1,12 +1,14 @@
 import base64
-import re
 from pathlib import Path
 
 import requests
+from antx import transfer
+from antx.ann_patterns import HFML_ANN_PATTERN
 from flask import current_app
 from github3 import GitHub
 from github3.apps import create_jwt_headers
 from openpecha.formatters import HFMLFormatter
+from openpecha.formatters.layers import AnnType
 from openpecha.serializers import EpubSerializer, HFMLSerializer
 from requests.api import head
 
@@ -78,7 +80,7 @@ def create_export_issue(pecha_id, layers="", format_=".epub"):
 def get_response_json(url, headers={}):
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        raise Exception(f"Status code : {response.status_code}, {response.json()}")
+        return []
     return response.json()
 
 
@@ -87,7 +89,15 @@ class PechaExporter:
 
     def __init__(self, pecha_id, layers="publication", format_=".epub"):
         self.pecha_id = pecha_id
-        self.layers = layers
+        self.base_layer_name = "BaseText"
+        default_layers = [
+            self.base_layer_name,
+            AnnType.book_title,
+            AnnType.poti_title,
+            AnnType.author,
+            AnnType.chapter,
+        ]
+        self.layers = default_layers + layers
         self.format_ = format_
 
         self._prepare_paths()
@@ -138,20 +148,34 @@ class PechaExporter:
             content = self._get_content(git_url)
             out_fn.write_text(content)
 
+    def _merge_layers_for_vol(self, base_vol_fn):
+        """Merge all the layers of a volume."""
+        base_layer = base_vol_fn.read_text()
+        vol_fn = base_vol_fn.name
+        for ann_layer_name in self.layers[1:]:
+            ann_layer_vol_fn = self.layers_path / ann_layer_name / vol_fn
+            if not ann_layer_vol_fn.is_file():
+                continue
+            ann_layer = ann_layer_vol_fn.read_text()
+            base_layer = transfer(ann_layer, HFML_ANN_PATTERN, base_layer, "txt")
+
+        merged_layers_fn = self.merged_layers_path / vol_fn
+        merged_layers_fn.write_text(base_layer)
+
     def merge_layers(self):
-        """Combine all the layer into one."""
-        self.layers_path
-        self.merged_layers_fn
-        return
+        for base_vol_fn in (self.layers_path / self.base_layer_name).iterdir():
+            self._merge_layers_for_vol(base_vol_fn)
 
     def parse(self):
         """Parser layers into opf."""
-        self.parser.create_opf(self.merged_layers_path)
+        self.parser.create_opf(self.merged_layers_path, id_=self.pecha_id)
 
-    def serialize(self, opf_path):
+    def serialize(self):
         """Serialize the opf into given format."""
-        serializers = self._get_serializer(self.format_, opf_path=opf_path)
-        exported_fn = serializers.serialize(output_path=self.base_path)
+        serializers = self._get_serializer(
+            self.format_, opf_path=self.parser.dirs["opf_path"]
+        )
+        exported_fn = serializers.serialize(output_path=self.pecha_path)
         return exported_fn
 
     def create_pre_release(self):
@@ -163,10 +187,10 @@ class PechaExporter:
         self.base_path.unlink()
 
     def export(self):
-        self.download_layers()
-        self.merge_layers()
-        opf_path = self.parse()
-        exported_asset_path = self.serialize(opf_path)
+        # self.download_layers()
+        # self.merge_layers()
+        self.parse()
+        exported_asset_path = self.serialize()
         asset_download_url = self.create_pre_release(exported_asset_path)
         self.clean()
         return asset_download_url

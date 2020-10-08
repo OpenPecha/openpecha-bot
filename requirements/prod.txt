@@ -30,3 +30,4 @@ environs==8.0.0
 
 # Utils
 openpecha==0.6.11
+antx==0.1.3
