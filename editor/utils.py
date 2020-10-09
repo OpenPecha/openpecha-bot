@@ -5,6 +5,7 @@ import requests
 from antx import transfer
 from antx.ann_patterns import HFML_ANN_PATTERN
 from flask import current_app
+from flask.helpers import url_for
 from github3 import GitHub
 from github3.apps import create_jwt_headers
 from openpecha.formatters import HFMLFormatter
@@ -78,10 +79,17 @@ def create_export_issue(pecha_id, layers="", format_=".epub"):
 
 
 def get_response_json(url, headers={}):
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
+    r = requests.get(url, headers=headers)
+    if r.status_code != 200:
         return []
-    return response.json()
+    return r.json()
+
+
+def download_file(url, out_fn):
+    r = requests.get(url, stream=True)
+    if r.status_code == 200:
+        out_fn.parent.mkdir(exist_ok=True, parents=True)
+        out_fn.write_bytes(r.content)
 
 
 class PechaExporter:
@@ -106,7 +114,7 @@ class PechaExporter:
         self.serializer = None
 
         self.content_url_template = (
-            "https://api.github.com/repos/OpenPecha/{}/contents?ref={}"
+            "https://api.github.com/repos/OpenPecha/{}/contents/{}?ref={}"
         )
 
     def _prepare_paths(self):
@@ -129,13 +137,13 @@ class PechaExporter:
     def _get_layers_git_urls(self):
         for layer in self.layers:
             files = get_response_json(
-                self.content_url_template.format(self.pecha_id, layer)
+                self.content_url_template.format(self.pecha_id, "", layer)
             )
             for file in files:
                 yield layer, file["name"], file["git_url"]
 
     @staticmethod
-    def _get_content(git_url):
+    def _get_base64_content(git_url):
         data = get_response_json(git_url)
         return base64.b64decode(data["content"]).decode("utf-8")
 
@@ -145,8 +153,34 @@ class PechaExporter:
             layer_path = self.layers_path / layer
             layer_path.mkdir(exist_ok=True)
             out_fn = layer_path / fn
-            content = self._get_content(git_url)
+            content = self._get_base64_content(git_url)
             out_fn.write_text(content)
+
+    def _download_github_dir(self, items):
+        for item in items:
+            if item["type"] == "file":
+                out_fn = self.pecha_path / item["path"]
+                download_file(item["download_url"], out_fn)
+            else:
+                dir_url = item["url"]
+                items = get_response_json(dir_url)
+                self._download_github_dir(items)
+
+    def download_assets(self):
+        """Download all assets of pecha."""
+        asset_path = f"{self.pecha_id}.opf/asset"
+        asset_url = self.content_url_template.format(
+            self.pecha_id, asset_path, "master"
+        )
+        items = get_response_json(asset_url)
+        self._download_github_dir(items)
+
+    def download_metadata(self):
+        meta_path = f"{self.pecha_id}.opf/meta.yml"
+        meta_url = self.content_url_template.format(self.pecha_id, meta_path, "master")
+        meta = get_response_json(meta_url)
+        out_fn = self.pecha_path / meta["path"]
+        download_file(meta["download_url"], out_fn)
 
     def _merge_layers_for_vol(self, base_vol_fn):
         """Merge all the layers of a volume."""
@@ -172,10 +206,11 @@ class PechaExporter:
 
     def serialize(self):
         """Serialize the opf into given format."""
-        serializers = self._get_serializer(
+        serializer = self._get_serializer(
             self.format_, opf_path=self.parser.dirs["opf_path"]
         )
-        exported_fn = serializers.serialize(output_path=self.pecha_path)
+        serializer.apply_layers()
+        exported_fn = serializer.serialize(output_path=self.pecha_path)
         return exported_fn
 
     def create_pre_release(self):
@@ -187,9 +222,11 @@ class PechaExporter:
         self.base_path.unlink()
 
     def export(self):
-        # self.download_layers()
-        # self.merge_layers()
+        self.download_layers()
+        self.merge_layers()
         self.parse()
+        self.download_assets()
+        self.download_metadata()
         exported_asset_path = self.serialize()
         asset_download_url = self.create_pre_release(exported_asset_path)
         self.clean()
