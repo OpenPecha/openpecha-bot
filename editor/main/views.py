@@ -11,7 +11,6 @@ from flask import (
     session,
     url_for,
 )
-from flask_migrate import branches
 
 from editor.extensions import github_oauth
 from editor.user.models import RoleType, User
@@ -65,17 +64,14 @@ def export():
     format_ = request.form.getlist("format")
 
     # Create github issue
-    export_issue = create_export(pecha_id, layers, format_[0])
+    asset_download_url = create_export(pecha_id, layers, format_[0])
 
-    if export_issue:
-        flash(
-            f"{pecha_id} is being exported. Please go to Download section to download the file",
-            "info",
-        )
+    if asset_download_url:
+        return render_template("download_page.html", download_url=asset_download_url)
+        # flash( #     f"{pecha_id} is being exported. Please go to Download section to download the file", #     "info", # )
     else:
         flash(f"{pecha_id} cloud not be exported. Please try again later", "danger")
-
-    return redirect(url_for("main.index", pecha_id=pecha_id))
+        return redirect(url_for("main.index", pecha_id=pecha_id))
 
 
 @blueprint.route("/publish")

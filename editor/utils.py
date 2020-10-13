@@ -1,17 +1,17 @@
 import base64
+import shutil
 from pathlib import Path
 
 import requests
 from antx import transfer
 from antx.ann_patterns import HFML_ANN_PATTERN
 from flask import current_app
-from flask.helpers import url_for
 from github3 import GitHub
 from github3.apps import create_jwt_headers
 from openpecha.formatters import HFMLFormatter
 from openpecha.formatters.layers import AnnType
+from openpecha.github_utils import create_release
 from openpecha.serializers import EpubSerializer, HFMLSerializer
-from requests.api import head
 
 
 def get_opf_layers_and_formats(pecha_id):
@@ -126,6 +126,8 @@ class PechaExporter:
         self.layers_path.mkdir(exist_ok=True, parents=True)
         self.merged_layers_path = self.pecha_path / "merged_layers"
         self.merged_layers_path.mkdir(exist_ok=True, parents=True)
+        self.exports_path = self.pecha_path / "exports"
+        self.exports_path.mkdir(exist_ok=True, parents=True)
 
     @staticmethod
     def _get_serializer(format_, **kwargs):
@@ -210,26 +212,32 @@ class PechaExporter:
             self.format_, opf_path=self.parser.dirs["opf_path"]
         )
         serializer.apply_layers()
-        exported_fn = serializer.serialize(output_path=self.pecha_path)
+        exported_fn = serializer.serialize(output_path=self.exports_path)
         return exported_fn
 
     def create_pre_release(self):
         """Create pre-release and return the asset link."""
-        return
+        download_url = create_release(
+            self.pecha_id,
+            prerelease=True,
+            assets_path=list(self.exports_path.iterdir()),
+            token=current_app.config["GITHUB_TOKEN"],
+        )
+        return download_url
 
     def clean(self):
         """Remove downloaded layers, hfml file, opf and exported file."""
-        self.base_path.unlink()
+        shutil.rmtree(str(self.pecha_path))
 
     def export(self):
-        self.download_layers()
-        self.merge_layers()
-        self.parse()
-        self.download_assets()
-        self.download_metadata()
-        exported_asset_path = self.serialize()
-        asset_download_url = self.create_pre_release(exported_asset_path)
-        self.clean()
+        # self.download_layers()
+        # self.merge_layers()
+        # self.parse()
+        # self.download_assets()
+        # self.download_metadata()
+        # exported_asset_path = self.serialize()
+        asset_download_url = self.create_pre_release()
+        # self.clean()
         return asset_download_url
 
 
