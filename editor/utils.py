@@ -230,14 +230,14 @@ class PechaExporter:
         shutil.rmtree(str(self.pecha_path))
 
     def export(self):
-        # self.download_layers()
-        # self.merge_layers()
-        # self.parse()
-        # self.download_assets()
-        # self.download_metadata()
-        # exported_asset_path = self.serialize()
+        self.download_layers()
+        self.merge_layers()
+        self.parse()
+        self.download_assets()
+        self.download_metadata()
+        self.serialize()
         asset_download_url = self.create_pre_release()
-        # self.clean()
+        self.clean()
         return asset_download_url
 
 
