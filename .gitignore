@@ -8,3 +8,14 @@ venv/
 *.db
 
 **/codemirror/
+{
+        "GITHUB_TOKEN": "84aabb657287d789300daedcf0b8ae3bce491ba5",
+        "GITHUBAPP_ID": "66662",
+        "GITHUBAPP_SECRET": "jbDt8Fu=n@Zrz3Z",
+        "GITHUBAPP_KEY_PATH": "/home/tenzin/.github/openpecha-bot.2020-05-28.private-key.pem",
+        "GITHUB_CLIENT_ID": "Iv1.b2add9092bbb489c",
+        "GITHUB_CLIENT_SECRET": "b895fce8d0b606a858e101660f2c0e0924e54c5d",
+        "DATABASE_URI": "sqlite:///openpecha.db",
+        "SECRET_KEY": "836b7dd4d90241629dc86514d528ac00",
+	"OP_ADMIN_USERS": "10zinten ngawangtrinley"
+}
