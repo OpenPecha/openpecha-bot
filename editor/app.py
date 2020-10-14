@@ -5,11 +5,10 @@ import sys
 from flask import Flask
 
 from editor import bot, main, pecha, user
-from editor.config import Config
 from editor.extensions import db, github_oauth, migrate
 
 
-def create_app(config_object=Config):
+def create_app(config_object="editor.settings"):
     """Create application factory, as explained here: http://flask.pocoo.org/docs/patterns/appfactories/. """
     app = Flask(__name__.split(".")[0])
     app.config.from_object(config_object)
