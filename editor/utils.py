@@ -78,13 +78,6 @@ def create_export_issue(pecha_id, layers="", format_=".epub"):
     return issue
 
 
-def get_response_json(url, headers={}):
-    r = requests.get(url, headers=headers)
-    if r.status_code != 200:
-        return []
-    return r.json()
-
-
 def download_file(url, out_fn):
     r = requests.get(url, stream=True)
     if r.status_code == 200:
@@ -95,7 +88,10 @@ def download_file(url, out_fn):
 class PechaExporter:
     """This class exports pecha into specified format with selected layers."""
 
-    def __init__(self, pecha_id, layers="publication", format_=".epub"):
+    def __init__(self, pecha_id, oauth_token, layers="publication", format_=".epub"):
+        self.oauth_token = oauth_token
+        self.headers = {"Authorization": f"token {self.oauth_token}"}
+
         self.pecha_id = pecha_id
         self.base_layer_name = "BaseText"
         default_layers = [
@@ -120,6 +116,7 @@ class PechaExporter:
     def _prepare_paths(self):
         self.base_path = Path("/tmp") / "openpecha"
         self.pecha_path = self.base_path / self.pecha_id
+        self.clean()
         self.pecha_path.mkdir(exist_ok=True, parents=True)
 
         self.layers_path = self.pecha_path / "layers"
@@ -136,17 +133,22 @@ class PechaExporter:
         else:
             return HFMLSerializer(**kwargs)
 
+    def get_response_json(self, url, headers={}):
+        r = requests.get(url, headers=self.headers)
+        if r.status_code != 200:
+            return []
+        return r.json()
+
     def _get_layers_git_urls(self):
         for layer in self.layers:
-            files = get_response_json(
+            files = self.get_response_json(
                 self.content_url_template.format(self.pecha_id, "", layer)
             )
             for file in files:
                 yield layer, file["name"], file["git_url"]
 
-    @staticmethod
-    def _get_base64_content(git_url):
-        data = get_response_json(git_url)
+    def _get_base64_content(self, git_url):
+        data = self.get_response_json(git_url)
         return base64.b64decode(data["content"]).decode("utf-8")
 
     def download_layers(self):
@@ -165,7 +167,7 @@ class PechaExporter:
                 download_file(item["download_url"], out_fn)
             else:
                 dir_url = item["url"]
-                items = get_response_json(dir_url)
+                items = self.get_response_json(dir_url)
                 self._download_github_dir(items)
 
     def download_assets(self):
@@ -174,13 +176,13 @@ class PechaExporter:
         asset_url = self.content_url_template.format(
             self.pecha_id, asset_path, "master"
         )
-        items = get_response_json(asset_url)
+        items = self.get_response_json(asset_url)
         self._download_github_dir(items)
 
     def download_metadata(self):
         meta_path = f"{self.pecha_id}.opf/meta.yml"
         meta_url = self.content_url_template.format(self.pecha_id, meta_path, "master")
-        meta = get_response_json(meta_url)
+        meta = self.get_response_json(meta_url)
         out_fn = self.pecha_path / meta["path"]
         download_file(meta["download_url"], out_fn)
 
@@ -196,7 +198,7 @@ class PechaExporter:
             base_layer = transfer(ann_layer, HFML_ANN_PATTERN, base_layer, "txt")
 
         merged_layers_fn = self.merged_layers_path / vol_fn
-        merged_layers_fn.write_text(base_layer)
+        merged_layers_fn.write_text(base_layer.replace(">>", ">"))
 
     def merge_layers(self):
         for base_vol_fn in (self.layers_path / self.base_layer_name).iterdir():
@@ -221,7 +223,7 @@ class PechaExporter:
             self.pecha_id,
             prerelease=True,
             assets_path=list(self.exports_path.iterdir()),
-            token=current_app.config["GITHUB_TOKEN"],
+            token=self.oauth_token,
         )
         return download_url
 
@@ -237,11 +239,10 @@ class PechaExporter:
         self.download_metadata()
         self.serialize()
         asset_download_url = self.create_pre_release()
-        self.clean()
         return asset_download_url
 
 
-def create_export(pecha_id, layers, format_):
-    exporter = PechaExporter(pecha_id, layers, format_)
+def create_export(pecha_id, layers, format_, token):
+    exporter = PechaExporter(pecha_id, token, layers, format_)
     asset_download_url = exporter.export()
     return asset_download_url

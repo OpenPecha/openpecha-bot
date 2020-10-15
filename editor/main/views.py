@@ -64,7 +64,9 @@ def export():
     format_ = request.form.getlist("format")
 
     # Create github issue
-    asset_download_url = create_export(pecha_id, layers, format_[0])
+    asset_download_url = create_export(
+        pecha_id, layers, format_[0], session.get("user_access_token")
+    )
 
     if asset_download_url:
         return render_template("download_page.html", download_url=asset_download_url)
