@@ -8,6 +8,11 @@ from .models import Pecha
 blueprint = Blueprint("pecha", __name__, url_prefix="/pecha", static_folder="../static")
 
 
+# @blueprint.route("/create", method=["POST"])
+# def create_pecha():
+#     pass
+
+
 @blueprint.route("/secret", methods=["POST"])
 def create_secret():
     for i in range(100, 101):

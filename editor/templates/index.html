@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+
+{% block title %} OpenPecha | Home {% endblock %}
+
+{% block nav %}
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">OpenPecha</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+        aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Blog</a>
+            </li>
+            </li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<main role="main">
+    <div class="jumbotron">
+        <div class="container">
+            <h3 class="display-4">Open etexts and annotations</h3>
+            <p>OpenPecha is an open collaborative initiative started by BDRC. It provides <strong>Format</strong>, <strong>Editor</strong> and <strong>Catalog</strong> to manage the annotations of etext in any format.</p>
+            <p><a class="btn btn-primary btn-lg" href="#" role="button" data-toggle="modal" data-target="#ImportPechaModal">Get Started &raquo;</a></p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Format</h2>
+                <p>A format to represent a text with all sorts of annotations.</p>
+                <p><a class="btn btn-secondary" href="#" role="button">Learn more &raquo;</a></p>
+            </div>
+            <div class="col-md-4">
+                <h2>Editor</h2>
+                <p>An Editor for <strong>creating</strong> new annotations and <strong>correcting</strong> old annotations. It also allows to <strong>export</strong> annotations in supported format like .epub</p>
+                <p><a class="btn btn-secondary" href="#" role="button">Learn more</a></p>
+            </div>
+            <div class="col-md-4">
+                <h2>Catalog</h2>
+                <p>A catalog of all the text published in openpecha format</p>
+                <p><a class="btn btn-secondary" href="#" role="button">Learn more</a></p>
+            </div>
+        </div>
+
+        <hr>
+
+    </div>
+
+    <div class="modal fade" id="ImportPechaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-xl modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel">Import</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="needs-validation">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" class="form-control" placeholder="བློ་གྲོས་མཐའ་ཡས་པའི་མཛོད།" required>
+                            <div class="invalid-feedback">
+                                Please choose a username.
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Subtitle</label>
+                            <input type="text" class="form-control" placeholder="དེབ་ཕྲེང་གསུམ་པ།">
+                        </div>
+                        <div class="form-group">
+                            <label>Author</label>
+                            <input type="text" class="form-control" placeholder="མཉམ་མེད་དྭགས་པོ་ལྷ་རྗེ།" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Collection Title</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="validationCustom02">Book Number in Series</label>
+                            <input type="text" class="form-control" id="validationCustom04" placeholder="RDI-SS-03" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Publisher</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile" required>
+                                <label class="custom-file-label" for="customFile">Front Cover Image</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-group custom-file">
+                                <input type="file" class="custom-file-input" id="customFile" required>
+                                <label class="custom-file-label" for="customFile">Publication Data Image</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-group custom-file">
+                                <input type="file" class="custom-file-input" id="customFile" multiple>
+                                <label class="custom-file-label" for="customFile">Content Images </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>eText of Whole Tibetan Book</label>
+                            <textarea rows="10" class="form-control" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="container">
+    <!-- <p>&copy; openpecha.org</p> -->
+</footer>
+{% endblock %}

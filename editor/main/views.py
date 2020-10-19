@@ -24,19 +24,19 @@ from editor.utils import (
 blueprint = Blueprint("main", __name__, url_prefix="/", static_folder="../static")
 
 
+@blueprint.route("/")
+def index():
+    return render_template("index.html")
+
+
 @blueprint.route("/<pecha_id>")
-def index(pecha_id):
-    if "user_id" in session:
-        return redirect(url_for("main.editor", pecha_id=pecha_id))
-    session["next_url"] = url_for("main.editor", pecha_id=pecha_id)
-    return render_template("login.html")
-
-
-@blueprint.route("/editor/<pecha_id>")
 def editor(pecha_id):
     # login or register to github account
     if "user_id" not in session:
-        return redirect(url_for("main.index", pecha_id=pecha_id))
+        if "user_id" in session:
+            return redirect(url_for("main.editor", pecha_id=pecha_id))
+        session["next_url"] = url_for("main.editor", pecha_id=pecha_id)
+        return render_template("login.html")
 
     # Register user to text repo if not
     user = User.query.get(session["user_id"])
