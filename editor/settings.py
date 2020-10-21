@@ -4,6 +4,8 @@ Most configuration is set via environment variables.
 For local development, use a .env file to set
 environment variables.
 """
+from pathlib import Path
+
 from environs import Env
 
 env = Env()
@@ -34,3 +36,8 @@ GITHUBREPO_OWNER = "OpenPecha"
 
 # admin user
 OP_ADMIN_USERS = env.str("OP_ADMIN_USERS")
+
+# Form Securities
+MAX_CONTENT_LENGTH = 1024 * 1024
+UPLOAD_EXTENSIONS = [".jpg", ".png", ".jpeg"]
+BOOK_ASSETS_UPLOAD_PATH = Path("/tmp/uploads")
