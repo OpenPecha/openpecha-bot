@@ -57,7 +57,7 @@ def create_soruce_metadata(request):
         "id": id_.strip(),
         "title": title.strip(),
         "subtitle": subtitle.strip(),
-        "authors": parser_authors(authors),
+        "author": authors,
         "collection-title": collection_title.strip(),
         "publisher": publisher.strip(),
         "images": {
@@ -71,10 +71,11 @@ def create_soruce_metadata(request):
 
 
 def save_text(parents_dir, text):
-    parents_dir.mkdir(exist_ok=True, parents=True)
-    text_fn = parents_dir / "v001.txt"
+    base_dir = current_app.config["BOOK_ASSETS_UPLOAD_PATH"] / parents_dir
+    base_dir.mkdir(exist_ok=True, parents=True)
+    text_fn = base_dir / "v001.txt"
     text_fn.write_text(text)
-    return text_fn
+    return text_fn.parent
 
 
 @blueprint.route("/create", methods=["POST"])
@@ -90,11 +91,13 @@ def create_pecha():
         "cition",
         "sabche",
         "root-verse",
-        "foot-notes",
+        "foot-note",
         "all",
     ]
     catalog = CatalogManager(
-        formatters=HFMLFormatter(metadata={"source_metadata": source_metadata}),
+        formatter=HFMLFormatter(
+            metadata={"source_metadata": source_metadata, "layers": layers}
+        ),
         layers=layers,
     )
     catalog.add_hfml_item(text_path)
