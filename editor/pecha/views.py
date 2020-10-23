@@ -99,9 +99,10 @@ def create_pecha():
             metadata={"source_metadata": source_metadata, "layers": layers}
         ),
         layers=layers,
+        token=current_app.config["GITHUB_TOKEN"],
     )
     catalog.add_hfml_item(text_path)
-    catalog.update_catalog()
+    catalog.update()
     pecha_id = f"P{catalog.last_id:06}"
     return redirect(url_for("main.editor", pecha_id=pecha_id))
 
