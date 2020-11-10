@@ -77,6 +77,10 @@ h6 {
   font-size: 5em;
 }
 
+.sections {
+  margin-top: 70px;
+}
+
 .card {
   background: #fbfbfb;
   border-radius: 3px;
