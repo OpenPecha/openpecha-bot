@@ -1,4 +1,5 @@
 import { getGHClient } from "./github.js";
+import { loading } from "./utils.js";
 
 var editor = {
     init: function () {
@@ -33,6 +34,7 @@ function utf8_to_b64(str) {
 }
 
 async function getBlob(owner, repo, sha) {
+    loading();
     const ghClient = await getGHClient();
     const gh_response = await ghClient.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
         owner: owner,
@@ -40,9 +42,10 @@ async function getBlob(owner, repo, sha) {
         file_sha: sha
     })
 
-    const response = await fetch(gh_response['url'])
-    const data = await response.json()
-    return data['content']
+    const response = await fetch(gh_response['url']);
+    const data = await response.json();
+    loading("off");
+    return data['content'];
 }
 
 async function prepareTextEditorForm(volumeFileDom) {
@@ -76,6 +79,7 @@ function launchEditor(volumeFileDom) {
 
 $(document).ready(function () {
     $("body").delegate("#volume-file", "click", function () {
+        $("#files-toggle").trigger("click");
         launchEditor(this);
     });
 });
@@ -83,6 +87,7 @@ $(document).ready(function () {
 
 async function pushChanges(org, repo, branch, path, message, content, sha) {
     // console.log(org, repo, branch, path, message, content, sha);
+    loading();
     const ghClient = await getGHClient();
     const response = await ghClient.request('PUT /repos/{owner}/{repo}/contents/{path}', {
         owner: org,
@@ -93,7 +98,7 @@ async function pushChanges(org, repo, branch, path, message, content, sha) {
         sha: sha,
         branch: branch
     })
-
+    loading("off");
     return response;
 };
 

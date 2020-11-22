@@ -36,6 +36,9 @@
         {% endif %}
         {% endwith %}
     </div> -->
+    <div class="loader" style="display: none;">
+        <img src="{{ url_for('static', filename='img/loading.svg') }}" alt="Loading..." />
+    </div>
     {% block content %}{% endblock %}
 
     <!-- Optional JavaScript -->
