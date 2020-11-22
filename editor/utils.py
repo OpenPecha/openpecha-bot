@@ -116,7 +116,8 @@ class PechaExporter:
     def _prepare_paths(self):
         self.base_path = Path("/tmp") / "openpecha"
         self.pecha_path = self.base_path / self.pecha_id
-        self.clean()
+        if self.pecha_path.is_dir():
+            self.clean()
         self.pecha_path.mkdir(exist_ok=True, parents=True)
 
         self.layers_path = self.pecha_path / "layers"
