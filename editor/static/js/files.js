@@ -2,8 +2,8 @@ import { getGHClient } from "./github.js";
 import { loading } from "./utils.js";
 
 function getFileDOM(file, org, repo, branch) {
-    return '<a href="#" id="volume-file"> \
-                <span id="volume-filename">' + file['name'] + '</span> \
+    return '<a href="#" class="volume-file"> \
+                <span class="volume-filename">' + file['name'] + '</span> \
                 <input type="hidden" id="sha" value=' + file['sha'] + '> \
                 <input type="hidden" id="path" value=' + file['path'] + '> \
             </a>'
@@ -33,4 +33,5 @@ export async function listFiles(org, repo, branch) {
     $('.repo-files').html(getFiles(gh_response.data, org, repo, branch));
     loading("off")
     $("#files-toggle").trigger("click");
+    $(".volume-file").trigger("click");
 };

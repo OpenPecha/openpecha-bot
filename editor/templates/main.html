@@ -38,8 +38,9 @@
     <div class="item-left delimeter"></div>
     <div class="toolbar-item item-left">
         <div class="btn-group">
-            <button class="dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="true">Annotations</button>
+            <span>Layers:</span>
+            <button id="cur-ann-label" class="dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="true"></button>
             <ul class="dropdown-menu">
                 <h6 class="dropdown-header">VIEWS</h6>
                 <li class="dropdown-submenu">
@@ -71,7 +72,7 @@
             </ul>
         </div>
     </div>
-    <div class="item-left delimeter"></div>
+    <!-- <div class="item-left delimeter"></div>
     <div class="toolbar-item item-left">
         <span class="toolbar-legend">Theme</span>
         <select onchange="selectTheme()" class="selector">
@@ -80,9 +81,9 @@
             <option>3024-night</option>
             <option>abcdef</option>
             <option>ambiance</option>
-            <option>ayu-dark</option>
+            eoptioneayu-dark</option>
         </select>
-    </div>
+    </div> -->
     <div class="item-left delimeter"></div>
     <div class="toolbar-item item-left">
         <a href="#" data-toggle="modal" data-target="#exportModal"><img
@@ -155,7 +156,7 @@
 </div>
 
 <div class="row main">
-    <div class="col-3 scrollbar collapse" id="demo">
+    <div class="col-1 scrollbar collapse" id="demo">
         <div class="repo-files" id="file-list"></div>
     </div>
     <div class="col" id="editor-section">
@@ -169,12 +170,22 @@
 <script type="module">
     import { listFiles } from "{{ url_for('static', filename='js/files.js') }}";
 
+    function updateAnnLabel(annName) {
+        $('#cur-ann-label').html(annName + ' <span class="caret"></span>');
+    }
+
     $(document).ready(function () {
         $(".dropdown-menu li a").click(function () {
             var annName = $(this).text();
-            $(this).parents('.btn-group').find('.dropdown-toggle').html(annName + ' <span class="caret"></span>');
+            updateAnnLabel(annName);
             listFiles('OpenPecha', '{{ pecha_id }}', annName);
         });
+
+        //preload BaseText
+        var defaultAnnName = "BaseText";
+        updateAnnLabel(defaultAnnName);
+        listFiles('OpenPecha', '{{ pecha_id }}', defaultAnnName);
+
     });
 </script>
 <script type="module" src="{{ url_for('static', filename='js/editor.js') }}"></script>

@@ -66,7 +66,7 @@ async function prepareTextEditorForm(volumeFileDom) {
 };
 
 function addEditorTitle(volumeFileDom) {
-    const volumeFilename = $(volumeFileDom).children("#volume-filename").text();
+    const volumeFilename = $(volumeFileDom).children(".volume-filename").text();
     const editorSection = $("#editor-section");
     editorSection.children("#editor-title").remove();
     editorSection.prepend(`<p id="editor-title">/${volumeFilename}</p>`)
@@ -78,7 +78,7 @@ function launchEditor(volumeFileDom) {
 };
 
 $(document).ready(function () {
-    $("body").delegate("#volume-file", "click", function () {
+    $("body").delegate(".volume-file", "click", function () {
         $("#files-toggle").trigger("click");
         launchEditor(this);
     });
